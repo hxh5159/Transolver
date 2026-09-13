@@ -1,0 +1,51 @@
+三、完整训练 + 评估流程
+Step 0（可选）：校验数据
+
+python CODEX/check/check_shapenetcar_dataset.py \
+  --data-dir /inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data/mlcfd/training_data
+输出 RESULT: COMPLETE 且 errors: 0 才继续。
+
+Step 1：训练 9 折
+cd 到 Car-Design-ShapeNetCar 目录后，对每个 fold 训练（--experiment_dir output/fold_N 给每折固定目录，方便追踪）：
+
+
+for fold in 0 1 2 3 4 5 6 7 8; do
+  python main.py \
+    --cfd_model=Transolver \
+    --data_dir /inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data/mlcfd/training_data \
+    --save_dir /inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data/mlcfd/preprocessed_data \
+    --fold_id "$fold" \
+    --gpu 0 \
+    --seed 0 \
+    --experiment_dir "output/fold_${fold}"
+done
+每折产出：output/fold_N/model_final.pth、checkpoints/checkpoint_final.pth、training_summary.json、config.json。
+
+超参已在 main.py 默认里与论文一致：nb_epochs=200, batch_size=1, lr=0.001, weight=0.5，模型 n_hidden=256, n_layers=8, n_head=8, slice_num=32。
+
+Step 2：评估 9 折
+
+for fold in 0 1 2 3 4 5 6 7 8; do
+  python main_evaluation.py \
+    --cfd_model=Transolver \
+    --data_dir /inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data/mlcfd/training_data \
+    --save_dir /inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data/mlcfd/preprocessed_data \
+    --fold_id "$fold" \
+    --gpu 0 \
+    --experiment_dir "output/fold_${fold}"
+done
+每折产出 output/fold_N/evaluation/evaluation_metrics.json（含上面 4 个指标）。
+
+Step 3：取 9 折平均
+对每个指标，把 9 个 evaluation_metrics.json 里的对应键求平均即可。可用的汇总命令（不落盘，只打印）：
+
+
+python - <<'PY'
+import json, glob, numpy as np
+files = sorted(glob.glob('output/fold_*/evaluation/evaluation_metrics.json'))
+keys = ['volume_velocity_relative_l2_mean', 'surface_pressure_relative_l2_mean']
+for k in keys:
+    print(k, np.mean([json.load(open(f))[k] for f in files]))
+for k in ['mape', 'spearman']:
+    print('drag_coefficient.'+k, np.mean([json.load(open(f))['drag_coefficient'][k] for f in files]))
+PY

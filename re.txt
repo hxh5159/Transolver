@@ -1,0 +1,14 @@
+pip uninstall -y torch torchvision torch_geometric
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121   # 按你驱动选 cu121/cu124/cu126/cu128
+pip install torch_geometric==2.4.0
+
+
+# 1. 装 pyg-lib（匹配 torch 2.11.0+cu128）
+pip install -U torch_geometric
+pip install pyg-lib -f https://data.pyg.org/whl/torch-2.11.0+cu128.html
+
+# 2. 验证
+python -c "import torch; from torch_geometric.nn import radius_graph; radius_graph(torch.randn(8,2), r=0.5, max_num_neighbors=8); print('OK')"
+
+# 3. 重跑训练
+bash train_car.sh
