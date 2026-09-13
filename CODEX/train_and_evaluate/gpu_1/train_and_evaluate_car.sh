@@ -110,17 +110,20 @@ for directory in experiment_dirs:
         rows.append(json.load(file))
 
 def mean(key):
-    return float(np.mean([row[key] for row in rows]))
+    values = [row[key] for row in rows if row[key] is not None]
+    return float(np.mean(values)) if values else None
+
+def mean_nested(group, key):
+    values = [row[group][key] for row in rows if row[group].get(key) is not None]
+    return float(np.mean(values)) if values else None
 
 summary = {
     'folds': len(rows),
     'experiments': experiment_dirs,
     'volume_velocity_relative_l2_mean': mean('volume_velocity_relative_l2_mean'),
     'surface_pressure_relative_l2_mean': mean('surface_pressure_relative_l2_mean'),
-    'drag_coefficient_mape_mean': float(np.mean([
-        row['drag_coefficient']['mape'] for row in rows])),
-    'drag_coefficient_spearman_mean': float(np.mean([
-        row['drag_coefficient']['spearman'] for row in rows])),
+    'drag_coefficient_mape_mean': mean_nested('drag_coefficient', 'mape'),
+    'drag_coefficient_spearman_mean': mean_nested('drag_coefficient', 'spearman'),
 }
 summary_path = os.path.join(
     output_root, f'{os.path.basename(experiment_dirs[0]).split("_fold")[0]}_summary.json')
