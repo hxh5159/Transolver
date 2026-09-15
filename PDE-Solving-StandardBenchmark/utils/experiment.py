@@ -8,6 +8,7 @@ import random
 import shlex
 import subprocess
 import sys
+import warnings
 
 import numpy as np
 import torch
@@ -286,27 +287,40 @@ def record_epoch(paths, history, epoch, epoch_started, **metrics):
     return row
 
 
-def plot_training_history(paths, history):
+def plot_training_history(paths, history, checkpoint_interval=None, output_path=None):
     if not history:
         return None
     import matplotlib.pyplot as plt
     excluded = {'epoch', 'epoch_seconds'}
-    metric_names = [key for key in history[0]
-                    if key not in excluded and any(row.get(key) is not None for row in history)]
+    metric_names = [key for key in history[0] if key not in excluded
+                    and any(row.get(key) is not None for row in history)]
     if not metric_names:
         return None
     epochs = [row['epoch'] for row in history]
-    figure, axis = plt.subplots(figsize=(10, 6))
-    for name in metric_names:
+    figure, axes = plt.subplots(
+        len(metric_names), 1, figsize=(10, max(4.2, 3.0 * len(metric_names))),
+        sharex=True, constrained_layout=True, squeeze=False)
+    palette = ('#1769aa', '#c43c35', '#207567', '#d17c2f', '#75507b', '#555555')
+    for index, name in enumerate(metric_names):
+        axis = axes[index, 0]
         values = [np.nan if row.get(name) is None else row[name] for row in history]
-        axis.plot(epochs, values, label=name)
-    axis.set_xlabel('Epoch')
-    axis.set_ylabel('Metric')
-    axis.set_title('Training history')
-    axis.legend(loc='best')
-    axis.grid(alpha=0.25)
-    figure.tight_layout()
-    path = os.path.join(paths['visualizations'], 'training_curves.png')
+        axis.plot(epochs, values, label=name, color=palette[index % len(palette)], linewidth=1.4)
+        finite_positive = np.asarray(values, dtype=float)
+        finite_positive = finite_positive[np.isfinite(finite_positive) & (finite_positive > 0)]
+        if finite_positive.size:
+            axis.set_yscale('log')
+        if checkpoint_interval:
+            for checkpoint_epoch in range(
+                    checkpoint_interval, int(max(epochs)) + 1, checkpoint_interval):
+                axis.axvline(checkpoint_epoch, color='#777777', alpha=0.22, linewidth=0.8)
+        axis.set_ylabel('Metric')
+        axis.set_title(name.replace('_', ' ').title())
+        axis.legend(loc='best')
+        axis.grid(alpha=0.22)
+    axes[-1, 0].set_xlabel('Epoch')
+    figure.suptitle('Training and held-out test history')
+    path = output_path or os.path.join(paths['visualizations'], 'training_curves.png')
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     figure.savefig(path, dpi=150, bbox_inches='tight')
     plt.close(figure)
     return path
@@ -319,7 +333,18 @@ def finalize_training(paths, epoch, model, optimizer, scheduler, history,
         paths, epoch, model, optimizer, scheduler, history,
         metadata=metadata, filename='checkpoint_final.pth', extra=checkpoint_extra)
     final_paths = save_model_files(paths, model)
-    training_curve = plot_training_history(paths, history)
+    checkpoint_interval = metadata.get('checkpoint_interval') if isinstance(metadata, dict) else None
+    training_curve = None
+    try:
+        training_curve = plot_training_history(
+            paths, history, checkpoint_interval=checkpoint_interval,
+            output_path=os.path.join(paths['visualizations'], 'final_training_loss.png'))
+        # Preserve the stable filename introduced by the earlier experiment-output work.
+        plot_training_history(
+            paths, history, checkpoint_interval=checkpoint_interval,
+            output_path=os.path.join(paths['visualizations'], 'training_curves.png'))
+    except Exception as exc:
+        warnings.warn(f'Final training-curve visualization failed: {exc}')
     details = {'final_checkpoint': final_checkpoint,
                'training_curve': training_curve,
                'nb_parameters': int(sum(parameter.numel() for parameter in model.parameters()

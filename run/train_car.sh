@@ -12,7 +12,7 @@
 set -uo pipefail
 
 # ---------- 路径配置 ----------
-REPO="${REPO:-/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver}"
+REPO="${REPO:-/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_re}"
 DATA="${DATA:-/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data}"
 DATA_DIR="$DATA/mlcfd/training_data"        # 原始 VTK（param0..param8）
 SAVE_DIR="$DATA/mlcfd/preprocessed_data"    # 预处理输出（npy）

@@ -10,6 +10,9 @@ from torch_geometric.loader import DataLoader
 
 import pyvista as pv
 import json
+import matplotlib
+
+matplotlib.use('Agg')
 import seaborn as sns
 import random
 import time
@@ -17,6 +20,11 @@ import time
 import utils.metrics_NACA as metrics_NACA
 from utils.reorganize import reorganize
 from dataset.dataset import Dataset
+from utils.visualization import (
+    plot_boundary_layers, plot_error_distribution, plot_fields, plot_force_evaluation,
+    plot_latency_distribution, plot_streamlines, plot_surface_quantities, write_metrics,
+    write_per_sample_metrics,
+)
 
 from tqdm import tqdm
 
@@ -92,9 +100,13 @@ def Infer_test(device, models, hparams, data, coef_norm=None):
 
             model.eval()
             data_sampled = data_sampled.to(device)
-            start = time.time()
+            if torch.cuda.is_available() and str(device).startswith('cuda'):
+                torch.cuda.synchronize(device)
+            start = time.perf_counter()
             o = model(data_sampled)
-            tim[n] += time.time() - start
+            if torch.cuda.is_available() and str(device).startswith('cuda'):
+                torch.cuda.synchronize(device)
+            tim[n] += time.perf_counter() - start
             out[n][idx] = o.cpu()
 
             outs[n] = outs[n] + out[n]
@@ -296,6 +308,7 @@ def Results_test(device, models, hparams, coef_norm, path_in, path_out, n_test=3
     times = []
     true_coefs = []
     pred_coefs = []
+    field_records = []
     for i in range(len(models[0])):
         model = [models[n][i] for n in range(len(models))]
         avg_loss_per_var = np.zeros((len(model), 4))
@@ -313,7 +326,9 @@ def Results_test(device, models, hparams, coef_norm, path_in, path_out, n_test=3
 
         for j, data in enumerate(tqdm(test_loader)):
             Uinf, angle = float(test_dataset[j].split('_')[2]), float(test_dataset[j].split('_')[3])
+            inference_started = time.perf_counter()
             outs, tim = Infer_test(device, model, hparams, data, coef_norm=coef_norm)
+            sample_inference_ms = (time.perf_counter() - inference_started) * 1000.0
             times.append(tim)
             intern = pv.read(osp.join(path_in, test_dataset[j], test_dataset[j] + '_internal.vtu'))
             aerofoil = pv.read(osp.join(path_in, test_dataset[j], test_dataset[j] + '_aerofoil.vtp'))
@@ -325,6 +340,25 @@ def Results_test(device, models, hparams, coef_norm, path_in, path_out, n_test=3
             if i == 0:
                 true_coefs.append(tc)
             pred_coef.append(pc)
+
+            if i == 0:
+                prediction = outs[0].detach().cpu().numpy()
+                target = data.y.detach().cpu().numpy()
+                field_relative_l2 = float(
+                    np.linalg.norm(prediction - target)
+                    / max(np.linalg.norm(target), 1e-12))
+                surface_mse = float(np.mean(
+                    (prediction[data.surf.numpy()] - target[data.surf.numpy()]) ** 2))
+                volume_mse = float(np.mean(
+                    (prediction[~data.surf.numpy()] - target[~data.surf.numpy()]) ** 2))
+                field_records.append({
+                    'sample_index': j,
+                    'sample_name': test_dataset[j],
+                    'field_relative_l2': field_relative_l2,
+                    'surface_mse': surface_mse,
+                    'volume_mse': volume_mse,
+                    'inference_time_ms': float(sample_inference_ms),
+                })
 
             if j in idx:
                 internal.append(intern)
@@ -394,6 +428,97 @@ def Results_test(device, models, hparams, coef_norm, path_in, path_out, n_test=3
         spear_coefs.append(spear_coef)
     spear_coefs = np.array(spear_coefs)
 
+    primary_pred_coefs = (pred_coefs_mean[:, 0, :]
+                          if pred_coefs_mean.ndim == 3 else pred_coefs_mean)
+    force_relative_errors = np.abs(primary_pred_coefs - true_coefs) / np.maximum(
+        np.abs(true_coefs), 1e-12)
+    force_combined_error = force_relative_errors.mean(axis=1)
+    for record, truth, estimate, relative_error in zip(
+            field_records, true_coefs, primary_pred_coefs, force_relative_errors):
+        record.update({
+            'ground_truth_cd': float(truth[0]),
+            'predicted_cd': float(estimate[0]),
+            'cd_relative_error': float(relative_error[0]),
+            'ground_truth_cl': float(truth[1]),
+            'predicted_cl': float(estimate[1]),
+            'cl_relative_error': float(relative_error[1]),
+            'force_relative_error_mean': float(relative_error.mean()),
+        })
+    order = np.argsort(force_combined_error)
+    representative_cases = {
+        'best': int(order[0]),
+        'median': int(order[len(order) // 2]),
+        'worst': int(order[-1]),
+    }
+    plot_error_distribution(osp.join(path_out, 'error_distribution.png'), field_records)
+    plot_force_evaluation(
+        osp.join(path_out, 'force_coefficient_evaluation.png'),
+        true_coefs, primary_pred_coefs)
+    plot_latency_distribution(
+        osp.join(path_out, 'inference_time_distribution.png'),
+        [record['inference_time_ms'] for record in field_records])
+    write_per_sample_metrics(osp.join(path_out, 'per_sample_metrics.csv'), field_records)
+
+    case_root = osp.join(path_out, 'cases')
+    pathlib.Path(case_root).mkdir(parents=True, exist_ok=True)
+    primary_models = models[0]
+    primary_hparams = [hparams[0]] * len(primary_models)
+    for label, sample_index in representative_cases.items():
+        sample_name = test_dataset[sample_index]
+        case_dataset = Dataset([sample_name], sample=None, coef_norm=coef_norm, my_path=path_in)
+        case_data = next(iter(DataLoader(case_dataset, batch_size=1, shuffle=False)))
+        case_outputs, _ = Infer_test(
+            device, primary_models, primary_hparams, case_data, coef_norm=coef_norm)
+        prediction = np.mean(
+            [output.detach().cpu().numpy() for output in case_outputs], axis=0)
+        target = case_data.y.detach().cpu().numpy()
+        prediction = prediction * (np.asarray(coef_norm[3]) + 1e-8) + np.asarray(coef_norm[2])
+        target = target * (np.asarray(coef_norm[3]) + 1e-8) + np.asarray(coef_norm[2])
+        case_dir = osp.join(case_root, f'{label}_{sample_index}')
+        metrics_payload = dict(field_records[sample_index])
+        metrics_payload['selection'] = label
+        plot_fields(
+            case_dir, case_data.pos.detach().cpu().numpy(), prediction, target,
+            case_data.surf.detach().cpu().numpy(), sample_name=sample_name,
+            metrics=metrics_payload)
+        try:
+            plot_streamlines(
+                case_dir, case_data.pos.detach().cpu().numpy(), prediction, target,
+                case_data.surf.detach().cpu().numpy())
+        except Exception as exc:
+            metrics_payload['streamline_error'] = repr(exc)
+        try:
+            u_inf = float(sample_name.split('_')[2])
+            angle = float(sample_name.split('_')[3])
+            raw_internal = pv.read(osp.join(path_in, sample_name, sample_name + '_internal.vtu'))
+            raw_airfoil = pv.read(osp.join(path_in, sample_name, sample_name + '_aerofoil.vtp'))
+            _, true_internals_case, true_airfoils_case = Compute_coefficients(
+                [raw_internal], [raw_airfoil], case_data.surf, u_inf, angle,
+                keep_vtk=True)
+            predicted_internals, predicted_airfoils = Airfoil_test(
+                raw_internal, raw_airfoil, case_outputs, coef_norm, case_data.surf)
+            _, predicted_internals, predicted_airfoils = Compute_coefficients(
+                predicted_internals, predicted_airfoils, case_data.surf,
+                u_inf, angle, keep_vtk=True)
+            predicted_internal, predicted_airfoil = Airfoil_mean(
+                predicted_internals, predicted_airfoils)
+            plot_surface_quantities(
+                case_dir, true_airfoils_case[0], predicted_airfoil)
+            x_locations = (.2, .4, .6, .8)
+            true_profiles = [
+                metrics_NACA.boundary_layer(
+                    true_airfoils_case[0], true_internals_case[0], sample_name, x_location)
+                for x_location in x_locations]
+            predicted_profiles = [
+                metrics_NACA.boundary_layer(
+                    predicted_airfoil, predicted_internal, sample_name, x_location)
+                for x_location in x_locations]
+            plot_boundary_layers(
+                case_dir, true_profiles, predicted_profiles, x_locations)
+        except Exception as exc:
+            metrics_payload['surface_plot_error'] = repr(exc)
+        write_metrics(case_dir, metrics_payload)
+
     with open(osp.join(path_out, 'score.json'), 'w') as f:
         json.dump(
             {
@@ -410,7 +535,8 @@ def Results_test(device, models, hparams, coef_norm, path_in, path_out, n_test=3
                 'mean_score_force': scores_force.mean(axis=0),
                 'std_score_force': scores_force.std(axis=0),
                 'spearman_coef_mean': spear_coefs.mean(axis=0),
-                'spearman_coef_std': spear_coefs.std(axis=0)
+                'spearman_coef_std': spear_coefs.std(axis=0),
+                'representative_cases': representative_cases,
             }, f, indent=4, cls=NumpyEncoder
         )
 

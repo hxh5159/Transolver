@@ -1,5 +1,9 @@
 import random
+import warnings
 import numpy as np
+import matplotlib
+
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -20,6 +24,9 @@ from utils.experiment import (
     save_history,
     save_model_files,
     summarize,
+)
+from utils.visualization import (
+    plot_fields, plot_streamlines, plot_training_history, write_metrics,
 )
 
 
@@ -79,7 +86,7 @@ def train(device, model, train_loader, optimizer, scheduler, criterion='MSE', re
 
 
 @torch.no_grad()
-def test(device, model, test_loader, criterion='MSE'):
+def test(device, model, test_loader, criterion='MSE', collect_sample=False):
     model.eval()
     avg_loss_per_var = np.zeros(4)
     avg_loss = 0
@@ -88,11 +95,20 @@ def test(device, model, test_loader, criterion='MSE'):
     avg_loss_surf = 0
     avg_loss_vol = 0
     iter = 0
+    sample = None
 
     for data in test_loader:
         data_clone = data.clone()
         data_clone = data_clone.to(device)
         out = model(data_clone)
+
+        if collect_sample and sample is None:
+            sample = {
+                'points': data_clone.pos.detach().cpu().numpy(),
+                'prediction': out.detach().cpu().numpy(),
+                'target': data_clone.y.detach().cpu().numpy(),
+                'surface_mask': data_clone.surf.detach().cpu().numpy(),
+            }
 
         targets = data_clone.y
         if criterion == 'MSE' or 'MSE_weighted':
@@ -115,7 +131,10 @@ def test(device, model, test_loader, criterion='MSE'):
         avg_loss_vol += loss_vol.cpu().numpy()
         iter += 1
 
-    return avg_loss / iter, avg_loss_per_var / iter, avg_loss_surf_var / iter, avg_loss_vol_var / iter, avg_loss_surf / iter, avg_loss_vol / iter
+    result = (avg_loss / iter, avg_loss_per_var / iter,
+              avg_loss_surf_var / iter, avg_loss_vol_var / iter,
+              avg_loss_surf / iter, avg_loss_vol / iter)
+    return (*result, sample) if collect_sample else result
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -127,7 +146,8 @@ class NumpyEncoder(json.JSONEncoder):
 
 def main(device, train_dataset, val_dataset, Net, hparams, path, criterion='MSE', reg=1, val_iter=10,
          name_mod='GraphSAGE', val_sample=True, artifact_paths=None,
-         checkpoint_interval=100, resume_path=None, run_metadata=None,
+         checkpoint_interval=100, visualization_interval=100,
+         resume_path=None, run_metadata=None,
          model_index=0):
     '''
         Args:
@@ -211,6 +231,9 @@ def main(device, train_dataset, val_dataset, Net, hparams, path, criterion='MSE'
     pbar_train = tqdm(range(start_epoch, hparams['nb_epochs']), position=0)
     for epoch in pbar_train:
         epoch_start = time.perf_counter()
+        visualization_due = (visualization_interval > 0
+                             and (epoch + 1) % visualization_interval == 0)
+        visualization_sample_data = None
         train_dataset_sampled = []
         for data in train_dataset:
             data_sampled = data.clone()
@@ -287,8 +310,13 @@ def main(device, train_dataset, val_dataset, Net, hparams, path, criterion='MSE'
                         val_loader = DataLoader(val_dataset_sampled, batch_size=1, shuffle=True)
                         del (val_dataset_sampled)
 
-                        val_loss, _, val_surf_var, val_vol_var, val_surf, val_vol = test(device, model, val_loader,
-                                                                                         criterion)
+                        if visualization_due and i == 0:
+                            (val_loss, _, val_surf_var, val_vol_var, val_surf, val_vol,
+                             visualization_sample_data) = test(
+                                device, model, val_loader, criterion, collect_sample=True)
+                        else:
+                            val_loss, _, val_surf_var, val_vol_var, val_surf, val_vol = test(
+                                device, model, val_loader, criterion)
                         del (val_loader)
                         val_surf_vars.append(val_surf_var)
                         val_vol_vars.append(val_vol_var)
@@ -332,6 +360,38 @@ def main(device, train_dataset, val_dataset, Net, hparams, path, criterion='MSE'
             'epoch_seconds': float(epoch_seconds),
         })
         save_history(artifact_paths, history)
+        if visualization_due and visualization_sample_data is not None:
+            epoch_dir = osp.join(
+                artifact_paths['visualizations'], f'epoch_{epoch + 1:04d}')
+            Path(epoch_dir).mkdir(parents=True, exist_ok=True)
+            plot_training_history(
+                osp.join(epoch_dir, 'learning_curves.png'), history,
+                checkpoint_interval=checkpoint_interval)
+            output_norm = (run_metadata or {}).get('coef_norm')
+            prediction = visualization_sample_data['prediction']
+            target = visualization_sample_data['target']
+            if output_norm is not None:
+                prediction = prediction * (np.asarray(output_norm[3]) + 1e-8) + np.asarray(output_norm[2])
+                target = target * (np.asarray(output_norm[3]) + 1e-8) + np.asarray(output_norm[2])
+            visual_metrics = {
+                'epoch': epoch + 1,
+                'sample_index': 0,
+                'field_relative_l2': float(
+                    np.linalg.norm(prediction - target)
+                    / max(np.linalg.norm(target), 1e-12)),
+            }
+            try:
+                plot_fields(
+                    epoch_dir, visualization_sample_data['points'], prediction, target,
+                    visualization_sample_data['surface_mask'], sample_name='validation sample 0',
+                    metrics=visual_metrics)
+                plot_streamlines(
+                    epoch_dir, visualization_sample_data['points'], prediction, target,
+                    visualization_sample_data['surface_mask'])
+            except Exception as exc:
+                visual_metrics['visualization_error'] = repr(exc)
+                warnings.warn(f'AirfRANS visualization at epoch {epoch + 1} failed: {exc}')
+            write_metrics(epoch_dir, visual_metrics)
         if checkpoint_interval > 0 and (epoch + 1) % checkpoint_interval == 0:
             save_checkpoint(
                 artifact_paths, epoch + 1, model, optimizer, lr_scheduler, history,
@@ -358,6 +418,13 @@ def main(device, train_dataset, val_dataset, Net, hparams, path, criterion='MSE'
     final_model_path, final_state_path = save_model_files(artifact_paths, model, prefix=f'model_{model_index:03d}_final')
     # Keep a simple, stable name in each model's subdirectory for evaluation.
     torch.save(model, osp.join(path, 'model'))
+
+    try:
+        plot_training_history(
+            osp.join(artifact_paths['visualizations'], 'final_training_loss.png'), history,
+            checkpoint_interval=checkpoint_interval)
+    except Exception as exc:
+        warnings.warn(f'Final AirfRANS training-curve visualization failed: {exc}')
 
     sns.set()
     fig_train_surf, ax_train_surf = plt.subplots(figsize=(20, 5))

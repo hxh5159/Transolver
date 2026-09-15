@@ -38,6 +38,7 @@ parser.add_argument('--gpu', default=0, type=int)
 parser.add_argument('--output_root', default=osp.join(SCRIPT_DIR, 'output'))
 parser.add_argument('--experiment_dir', default=None)
 parser.add_argument('--checkpoint_interval', default=100, type=int)
+parser.add_argument('--visualization_interval', default=100, type=int)
 parser.add_argument('--resume', default=None)
 parser.add_argument('--seed', default=0, type=int)
 parser.add_argument('--deterministic', action='store_true')
@@ -156,6 +157,7 @@ try:
             criterion='MSE_weighted', val_iter=10, reg=args.weight,
             name_mod=args.model, val_sample=True, artifact_paths=member_paths,
             checkpoint_interval=args.checkpoint_interval,
+            visualization_interval=args.visualization_interval,
             resume_path=args.resume if index == 0 else None,
             run_metadata=run_metadata, model_index=index)
         print(f'end training model {index + 1}/{args.nmodel}')
@@ -184,6 +186,8 @@ try:
     evaluation_outputs = None
     if bool(args.score):
         print('start score')
+        # Make the stochastic AirfRANS subsampling repeatable during evaluation.
+        set_seed(args.seed, deterministic=args.deterministic)
         split = args.task + '_test' if args.task != 'scarce' else 'full_test'
         coefs = metrics.Results_test(
             device, [models], [hparams], coef_norm, args.my_path,
@@ -204,6 +208,14 @@ try:
             np.save(osp.join(paths['evaluation'], 'surf_coefs_' + str(n)), file)
         np.save(evaluation_outputs['true_bls'], coefs[5])
         np.save(evaluation_outputs['bls'], coefs[6])
+        with open(osp.join(paths['evaluation'], 'score.json'), 'r') as file:
+            score_payload = json.load(file)
+        write_json(osp.join(paths['evaluation'], 'evaluation_metrics.json'), {
+            'status': 'completed',
+            'task': args.task,
+            'test_split': split,
+            'score': score_payload,
+        })
         print('end score')
 
     summary = {
@@ -221,6 +233,8 @@ try:
         'ensemble_full': ensemble_full_path,
         'ensemble_state_dict': ensemble_state_path,
         'evaluation_outputs': evaluation_outputs,
+        'visualizations_dir': paths['visualizations'],
+        'evaluation_dir': paths['evaluation'],
     }
     write_json(osp.join(paths['root'], 'training_summary.json'), summary)
     update_status(paths, 'completed', started_at,

@@ -1,0 +1,59 @@
+mkdir -p ~/transolver_data/fno && cd ~/transolver_data/fno
+pip install gdown
+
+# Darcy（1 个 zip，解压出 2 个 .mat）
+gdown --id 1Z1uxG9R8AdAGJprG5STcphysjm56_0Jf -O Darcy_421.zip
+
+# Navier-Stokes（1 个 zip，解压出 1 个 .mat）
+gdown --id 1lVgpWMjv9Z6LEv3eZQ_Qgj54lYeqnGl5 -O NavierStokes_V1e-5_N1200_T20.zip
+
+# Plasticity
+gdown --id 14CPGK_ljae5c6dm2nRraY2kIDt39JX3d -O plas_N987_T20.mat
+
+# Elasticity（2 个 npy）
+gdown --id 1Ia5izgUum-IQLdO6PW70HO8AdAqA_IVb -O Random_UnitCell_sigma_10.npy
+gdown --id 1I-fO-RsFvD3nqBuFrg67R0yqTFdD_gpA -O Random_UnitCell_XY_10.npy
+
+# Airfoil 基准（3 个 npy）
+gdown --id 16EY0obqsccypaDFVY0wlsXX73SlD5TMy -O NACA_Cylinder_X.npy
+gdown --id 1rJUPtIhTAsG8TQnqV5mljjgQlyz0NJvJ -O NACA_Cylinder_Y.npy
+gdown --id 1AjW0t0YolY680J6xTQJ_g5bqTSJAZDZc -O NACA_Cylinder_Q.npy
+
+# Pipe（3 个 npy）
+gdown --id 1_FS-9Z1eZ3BmlDvANB7Y4-auwxwNnhnY -O Pipe_X.npy
+gdown --id 1ZjB4kEauqViMmz18ZfVaMpiuFhgZtRDX -O Pipe_Y.npy
+gdown --id 1Yj1EOYwCYBhlURISNHqvE3atVLDS_Jmp -O Pipe_Q.npy
+
+
+
+mkdir -p ~/transolver_data/naca && cd ~/transolver_data/naca
+wget -c https://data.isir.upmc.fr/extrality/NeurIPS_2022/Dataset.zip
+unzip Dataset.zip          # 解压后应得到 Dataset/ 目录（含 manifest.json）
+
+
+
+
+cd ~/transolver_data
+
+# 1) 解压 Darcy 和 NS 的 zip
+cd fno
+unzip Darcy_421.zip                          # → piececonst_r421_N1024_smooth1.mat / smooth2.mat
+unzip NavierStokes_V1e-5_N1200_T20.zip       # → NavierStokes_V1e-5_N1200_T20.mat
+
+# 2) 把 Elasticity / Airfoil / Pipe 的 npy 归位到对应子目录
+mkdir -p elasticity/Meshes airfoil/naca pipe
+mv Random_UnitCell_sigma_10.npy Random_UnitCell_XY_10.npy elasticity/Meshes/
+mv NACA_Cylinder_X.npy NACA_Cylinder_Y.npy NACA_Cylinder_Q.npy airfoil/naca/
+mv Pipe_X.npy Pipe_Y.npy Pipe_Q.npy pipe/
+
+# 3) 把 NS 的 .mat 放进同名子目录（exp_ns.py 期望的路径）
+mkdir -p NavierStokes_V1e-5_N1200_T20
+mv NavierStokes_V1e-5_N1200_T20.mat NavierStokes_V1e-5_N1200_T20/
+
+
+
+# 标准基准 → 远端 $DATA/fno/
+scp -r ~/transolver_data/fno/* root@<远端主机>:/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data/fno/
+
+# 翼型 → 远端 $DATA/naca/Dataset/
+scp -r ~/transolver_data/naca/Dataset root@<远端主机>:/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data/naca/

@@ -1,4 +1,7 @@
 import os
+import matplotlib
+
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import argparse
 import scipy.io as scio
@@ -13,6 +16,10 @@ from utils.experiment import (
     finalize_training, infer_experiment_dir, initialize, initialize_evaluation, load_model_state,
     prepare_experiment, record_epoch, restore_training, save_checkpoint, set_seed,
     update_config, update_status, write_json,
+)
+from utils.visualization import (
+    create_temporal_training_visualization, finalize_temporal_evaluation,
+    relative_l2_per_sample,
 )
 
 parser = argparse.ArgumentParser('Training Transformer')
@@ -41,7 +48,8 @@ parser.add_argument('--output_root', type=str,
 parser.add_argument('--experiment_dir', type=str, default=None)
 parser.add_argument('--model_path', type=str, default=None)
 parser.add_argument('--resume', type=str, default=None)
-parser.add_argument('--checkpoint_interval', type=int, default=100)
+parser.add_argument('--checkpoint_interval', type=int, default=50)
+parser.add_argument('--visualization_interval', type=int, default=50)
 parser.add_argument('--seed', type=int, default=0)
 parser.add_argument('--deterministic', action='store_true')
 args = parser.parse_args()
@@ -168,11 +176,17 @@ def main():
         os.makedirs(result_dir, exist_ok=True)
 
         test_l2_full = 0
+        sample_errors = []
+        latencies_ms = []
+        evaluation_cases = []
         with torch.no_grad():
             for x, fx, yy in test_loader:
                 id += 1
                 x, fx, yy = x.cuda(), fx.cuda(), yy.cuda()  # x : B, 4096, 2  fx : B, 4096  y : B, 4096, T
                 bsz = x.shape[0]
+                if x.is_cuda:
+                    torch.cuda.synchronize(x.device)
+                forward_started = time.perf_counter()
                 for t in range(0, T, step):
                     im = model(x, fx=fx)
 
@@ -181,6 +195,18 @@ def main():
                         pred = im
                     else:
                         pred = torch.cat((pred, im), -1)
+                if x.is_cuda:
+                    torch.cuda.synchronize(x.device)
+                rollout_latency_ms = (time.perf_counter() - forward_started) * 1000.0 / bsz
+                batch_errors = relative_l2_per_sample(pred, yy)
+                sample_errors.extend(batch_errors.tolist())
+                latencies_ms.extend([rollout_latency_ms] * bsz)
+                for sample in range(bsz):
+                    evaluation_cases.append({
+                        'coordinates': x[sample].detach().cpu().numpy(),
+                        'prediction': pred[sample].detach().cpu().numpy(),
+                        'target': yy[sample].detach().cpu().numpy(),
+                    })
 
                 if id < showcase:
                     print(id)
@@ -215,10 +241,14 @@ def main():
                 test_l2_full += myloss(pred.reshape(bsz, -1), yy.reshape(bsz, -1)).item()
             evaluation_loss = test_l2_full / ntest
             print(evaluation_loss)
+            visualization_metrics = finalize_temporal_evaluation(
+                artifact_paths['evaluation'], sample_errors, latencies_ms,
+                evaluation_cases, grid_shape=(h, h), field_name='Navier-Stokes vorticity')
             write_json(os.path.join(artifact_paths['evaluation'], 'evaluation_metrics.json'), {
                 'status': 'completed', 'benchmark': 'navier_stokes',
                 'checkpoint': checkpoint_path, 'full_relative_l2': float(evaluation_loss),
                 'test_samples': ntest, 'input_steps': T_in, 'prediction_steps': T,
+                **visualization_metrics,
             })
     else:
         for ep in range(start_epoch, args.epochs):
@@ -256,6 +286,7 @@ def main():
             test_l2_full = 0
 
             model.eval()
+            periodic_case = None
 
             with torch.no_grad():
                 for x, fx, yy in test_loader:
@@ -271,6 +302,12 @@ def main():
                         else:
                             pred = torch.cat((pred, im), -1)
                         fx = torch.cat((fx[..., step:], im), dim=-1)
+
+                    if periodic_case is None:
+                        periodic_case = (
+                            x[0].detach().cpu().numpy(),
+                            pred[0].detach().cpu().numpy(),
+                            yy[0].detach().cpu().numpy())
 
                     test_l2_step += loss.item()
                     test_l2_full += myloss(pred.reshape(bsz, -1), yy.reshape(bsz, -1)).item()
@@ -290,6 +327,14 @@ def main():
                 train_full_loss=float(train_full_metric),
                 test_step_loss=float(test_step_metric),
                 test_full_loss=float(test_full_metric))
+
+            if (args.visualization_interval > 0
+                    and (ep + 1) % args.visualization_interval == 0
+                    and periodic_case is not None):
+                create_temporal_training_visualization(
+                    artifact_paths, history, ep + 1, args.checkpoint_interval,
+                    periodic_case[0], periodic_case[1], periodic_case[2],
+                    grid_shape=(h, h), field_name='Navier-Stokes vorticity')
 
             if args.checkpoint_interval > 0 and (ep + 1) % args.checkpoint_interval == 0:
                 print('save model')

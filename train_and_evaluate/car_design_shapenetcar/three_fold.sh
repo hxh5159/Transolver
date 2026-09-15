@@ -12,7 +12,9 @@
 set -uo pipefail
 
 # ---------- 路径配置 ----------
-REPO="${REPO:-/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver}"
+# 从脚本自身位置推导仓库根：脚本在 <repo>/train_and_evaluate/car_design_shapenetcar/ 下。
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="${REPO:-$(dirname "$(dirname "$SCRIPT_DIR")")}"
 DATA="${DATA:-/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data}"
 CAR_DIR="$REPO/Car-Design-ShapeNetCar"
 DATA_DIR="$DATA/mlcfd/training_data"

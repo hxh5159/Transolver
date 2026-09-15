@@ -1,100 +1,107 @@
 #!/usr/bin/env bash
 # =============================================================================
-# 检查 DPOT-plus 数据目录里是否有本仓库 NS 任务需要的数据，若有则复制到目标 data 路径。
+# 检查 DPOT-plus 数据目录里的 NS 数据，找出本仓库需要的 V1e-5 文件并归位到目标路径。
 #
-# 仓库 NS 任务需要的文件（exp_ns.py）：
-#   NavierStokes_V1e-5_N1200_T20/NavierStokes_V1e-5_N1200_T20.mat
+# 本仓库 NS 任务（exp_ns.py）需要：NavierStokes_V1e-5_N1200_T20.mat
+#   - 粘度 1e-5（注意：1e-3 / 1e-4 是另一个 benchmark，不能用）
+#   - u 键，shape 需满足 (N>=1200, 64, 64, T>=20)
 #
-# 用法（在远端执行）：
-#   bash check_ns.sh
-# 可选环境变量：
-#   SOURCE_DIR  源目录（默认 DPOT-plus 的 fno 目录）
-#   DATA        目标数据根目录
+# 用法（远端执行）： bash check_ns.sh
+# 环境变量： SOURCE_DIR / DATA
 # =============================================================================
 set -uo pipefail
 
 SOURCE_DIR="${SOURCE_DIR:-/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/pdefoundationmodel/DPOT-plus/data/raw/fno}"
 DATA="${DATA:-/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data}"
 TARGET_DIR="$DATA/fno"
-REQUIRED="NavierStokes_V1e-5_N1200_T20.mat"
-DST="$TARGET_DIR/NavierStokes_V1e-5_N1200_T20/$REQUIRED"
+REQUIRED_MAT="NavierStokes_V1e-5_N1200_T20.mat"
+REQUIRED_ZIP="NavierStokes_V1e-5_N1200_T20.zip"
+DST="$TARGET_DIR/NavierStokes_V1e-5_N1200_T20/$REQUIRED_MAT"
 
 log() { echo "[$(date '+%F %T')] $*"; }
 
-# ---------- 1. 检查源目录 ----------
 if [ ! -d "$SOURCE_DIR" ]; then
   echo "错误：源目录不存在：$SOURCE_DIR"
   exit 1
 fi
 
-log "=== 源目录内容 $SOURCE_DIR ==="
-ls -la "$SOURCE_DIR" 2>/dev/null
-
-log "=== 所有 NavierStokes 相关文件（含子目录，最多 4 层）==="
-find "$SOURCE_DIR" -maxdepth 4 -iname '*navierstokes*' -o -maxdepth 4 -iname '*navier*' 2>/dev/null | sort
-
-# ---------- 2. 定位所需文件 ----------
-log "=== 定位所需文件 $REQUIRED ==="
-MAT_FILES=$(find "$SOURCE_DIR" -type f -name "$REQUIRED" 2>/dev/null)
-
-if [ -n "$MAT_FILES" ]; then
-  # 直接找到 .mat
-  SRC_MAT=$(echo "$MAT_FILES" | head -n1)
-  log "找到 .mat：$SRC_MAT（共 $(echo "$MAT_FILES" | wc -l) 处）"
-  mkdir -p "$(dirname "$DST")"
-  if [ -s "$DST" ]; then
-    log "目标已存在且非空，跳过复制：$DST"
+# ---------- 1. 列出所有 NavierStokes 文件，标注哪些是需要的 ----------
+log "=== 源目录里所有 NavierStokes 相关文件 ==="
+find "$SOURCE_DIR" -maxdepth 4 \( -iname '*navierstokes*' -o -iname 'ns_*' \) -type f 2>/dev/null | while read -r f; do
+  base="$(basename "$f")"
+  if [[ "$base" == *"V1e-5_N1200_T20"* ]]; then
+    echo "  [需要]  $f"
   else
-    cp -v "$SRC_MAT" "$DST"
+    echo "  [跳过]  $f  （粘度/分辨率不符，非本仓库基准）"
+  fi
+done
+
+# ---------- 2. 定位 V1e-5 文件（.mat 或 .zip） ----------
+log "=== 定位 $REQUIRED_MAT（或 $REQUIRED_ZIP）==="
+MAT_SRC=$(find "$SOURCE_DIR" -type f -name "$REQUIRED_MAT" 2>/dev/null | head -n1)
+ZIP_SRC=$(find "$SOURCE_DIR" -type f -name "$REQUIRED_ZIP" 2>/dev/null | head -n1)
+
+mkdir -p "$(dirname "$DST")"
+
+if [ -n "$MAT_SRC" ]; then
+  log "找到 .mat：$MAT_SRC"
+  if [ -s "$DST" ]; then
+    log "目标已存在，跳过复制"
+  else
+    cp -v "$MAT_SRC" "$DST"
+  fi
+elif [ -n "$ZIP_SRC" ]; then
+  log "找到 zip：$ZIP_SRC，解压到目标目录..."
+  unzip -o "$ZIP_SRC" -d "$(dirname "$DST")" >/dev/null
+  FOUND=$(find "$(dirname "$DST")" -type f -name "$REQUIRED_MAT" 2>/dev/null | head -n1)
+  if [ -n "$FOUND" ] && [ "$FOUND" != "$DST" ]; then
+    mv "$FOUND" "$DST"
+    log "已归位：$FOUND -> $DST"
   fi
 else
-  # 没找到 .mat，尝试找 zip
-  ZIP=$(find "$SOURCE_DIR" -type f -name 'NavierStokes_V1e-5_N1200_T20*.zip' 2>/dev/null | head -n1)
-  if [ -n "$ZIP" ]; then
-    log "未找到 .mat，但找到 zip：$ZIP，解压到目标..."
-    mkdir -p "$(dirname "$DST")"
-    unzip -o "$ZIP" -d "$(dirname "$DST")" >/dev/null
-    FOUND=$(find "$(dirname "$DST")" -type f -name "$REQUIRED" 2>/dev/null | head -n1)
-    if [ -n "$FOUND" ] && [ "$FOUND" != "$DST" ]; then
-      mv "$FOUND" "$DST"
-      log "已归位：$FOUND -> $DST"
-    fi
-  else
-    log "错误：源目录里既没有 $REQUIRED，也没有对应的 zip。"
-    log "源目录实际文件（最多 50 个）如下，请人工确认是否有其它名字/分辨率的 NS 数据："
-    find "$SOURCE_DIR" -maxdepth 4 -type f 2>/dev/null | head -50
-    exit 1
-  fi
-fi
-
-# ---------- 3. 校验 ----------
-if [ ! -s "$DST" ]; then
-  echo "错误：复制/解压后目标仍为空：$DST"
+  echo "错误：源目录里没有 $REQUIRED_MAT，也没有 $REQUIRED_ZIP"
   exit 1
 fi
 
-SIZE=$(du -h "$DST" | cut -f1)
-log "已就位：$DST（$SIZE）"
+# ---------- 3. 校验 u 键与 shape ----------
+if [ ! -s "$DST" ]; then
+  echo "错误：目标文件缺失/为空：$DST"
+  exit 1
+fi
+log "目标文件：$DST（$(du -h "$DST" | cut -f1)）"
 
-# 用 scipy.io.loadmat 校验可读，并打印内部键
 python - "$DST" <<'PY'
 import sys
-try:
-    import scipy.io as sio
-    import numpy as np
-except ImportError as e:
-    print("缺少依赖，跳过内容校验：", e)
-    sys.exit(0)
+import scipy.io as sio
 
 path = sys.argv[1]
 data = sio.loadmat(path)
 keys = [k for k in data.keys() if not k.startswith('__')]
-print("matlab 内部键：", keys)
-for k in keys:
-    v = data[k]
-    if hasattr(v, 'shape'):
-        print(f"  {k}: shape={v.shape} dtype={v.dtype}")
-print("校验通过：scipy.io.loadmat 可正常读取")
-PY
+print("matlab 键：", keys)
 
-log "完成。目标文件可直接用于 exp_ns.py（--data_path 指向 $TARGET_DIR）。"
+if 'u' not in data:
+    print("错误：缺少 'u' 键，不能用于 exp_ns.py")
+    sys.exit(1)
+
+u = data['u']
+print("u.shape =", u.shape)
+
+ok = True
+n, s1, s2, t = (u.shape[0], u.shape[1], u.shape[2], u.shape[3]) if u.ndim == 4 else (0, 0, 0, 0)
+if u.ndim != 4:
+    print("错误：u 应为 4 维 (N, H, W, T)，实际", u.ndim, "维")
+    ok = False
+else:
+    if n < 1200:
+        print(f"警告：样本数 N={n} < 1200（exp_ns.py 需前1000+后200）"); ok = False
+    if s1 != 64 or s2 != 64:
+        print(f"警告：空间分辨率 {s1}x{s2} != 64x64"); ok = False
+    if t < 20:
+        print(f"警告：时间步 T={t} < 20（需输入10+输出10）"); ok = False
+
+if ok:
+    print("✅ 校验通过：该文件可直接用于 exp_ns.py（--data_path 指向",
+          path.rsplit('/', 2)[0] + "/", "）")
+else:
+    print("❌ 该文件与 exp_ns.py 的期望不完全一致，请根据上面警告判断")
+PY

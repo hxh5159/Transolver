@@ -1,5 +1,8 @@
 import os
 import argparse
+import matplotlib
+
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -13,6 +16,10 @@ from utils.experiment import (
     finalize_training, infer_experiment_dir, initialize, initialize_evaluation, load_model_state,
     prepare_experiment, record_epoch, restore_training, save_checkpoint, set_seed,
     update_config, update_status, write_json,
+)
+from utils.visualization import (
+    create_scalar_training_visualization, finalize_scalar_evaluation,
+    relative_l2_per_sample,
 )
 
 parser = argparse.ArgumentParser('Training Transformer')
@@ -43,6 +50,7 @@ parser.add_argument('--experiment_dir', type=str, default=None)
 parser.add_argument('--model_path', type=str, default=None)
 parser.add_argument('--resume', type=str, default=None)
 parser.add_argument('--checkpoint_interval', type=int, default=100)
+parser.add_argument('--visualization_interval', type=int, default=100)
 parser.add_argument('--seed', type=int, default=0)
 parser.add_argument('--deterministic', action='store_true')
 args = parser.parse_args()
@@ -154,6 +162,9 @@ def main():
         model.eval()
         os.makedirs(result_dir, exist_ok=True)
         rel_err = 0.0
+        sample_errors = []
+        latencies_ms = []
+        evaluation_cases = []
         showcase = 10
         id = 0
 
@@ -161,10 +172,25 @@ def main():
             for pos, fx, y in test_loader:
                 id += 1
                 x, fx, y = pos.cuda(), fx.cuda(), y.cuda()
+                if x.is_cuda:
+                    torch.cuda.synchronize(x.device)
+                forward_started = time.perf_counter()
                 out = model(x, None).squeeze(-1)
+                if x.is_cuda:
+                    torch.cuda.synchronize(x.device)
+                batch_latency_ms = (time.perf_counter() - forward_started) * 1000.0 / x.shape[0]
                 out = y_normalizer.decode(out)
                 tl = myloss(out, y).item()
                 rel_err += tl
+                batch_errors = relative_l2_per_sample(out, y)
+                sample_errors.extend(batch_errors.tolist())
+                latencies_ms.extend([batch_latency_ms] * x.shape[0])
+                for sample in range(x.shape[0]):
+                    evaluation_cases.append({
+                        'coordinates': x[sample].detach().cpu().numpy(),
+                        'prediction': out[sample].detach().cpu().numpy(),
+                        'target': y[sample].detach().cpu().numpy(),
+                    })
                 if id < showcase:
                     print(id)
                     plt.axis('off')
@@ -199,10 +225,13 @@ def main():
 
         rel_err /= ntest
         print("rel_err : {}".format(rel_err))
+        visualization_metrics = finalize_scalar_evaluation(
+            artifact_paths['evaluation'], sample_errors, latencies_ms, evaluation_cases,
+            field_name='Material stress')
         write_json(os.path.join(artifact_paths['evaluation'], 'evaluation_metrics.json'), {
             'status': 'completed', 'benchmark': 'elasticity',
             'checkpoint': checkpoint_path, 'relative_l2': float(rel_err),
-            'test_samples': ntest,
+            'test_samples': ntest, **visualization_metrics,
         })
     else:
         for ep in range(start_epoch, args.epochs):
@@ -232,11 +261,17 @@ def main():
 
             model.eval()
             rel_err = 0.0
+            periodic_case = None
             with torch.no_grad():
                 for pos, fx, y in test_loader:
                     x, fx, y = pos.cuda(), fx.cuda(), y.cuda()
                     out = model(x, None).squeeze(-1)
                     out = y_normalizer.decode(out)
+                    if periodic_case is None:
+                        periodic_case = (
+                            x[0].detach().cpu().numpy(),
+                            out[0].detach().cpu().numpy(),
+                            y[0].detach().cpu().numpy())
                     tl = myloss(out, y).item()
                     rel_err += tl
 
@@ -245,6 +280,14 @@ def main():
 
             record_epoch(artifact_paths, history, ep + 1, epoch_started,
                          train_relative_l2=float(train_loss), test_relative_l2=float(rel_err))
+
+            if (args.visualization_interval > 0
+                    and (ep + 1) % args.visualization_interval == 0
+                    and periodic_case is not None):
+                create_scalar_training_visualization(
+                    artifact_paths, history, ep + 1, args.checkpoint_interval,
+                    periodic_case[0], periodic_case[1], periodic_case[2],
+                    field_name='Material stress')
 
             if args.checkpoint_interval > 0 and (ep + 1) % args.checkpoint_interval == 0:
                 print('save model')

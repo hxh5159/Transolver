@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash -n run/train_car.sh)",
+      "Bash(bash -n evaluate/evaluate_mlcfd.sh)",
+      "Bash(chmod +x train_eval.sh)",
+      "Bash(bash -n train_eval.sh)",
+      "WebFetch(domain:huggingface.co)",
+      "Bash(bash -n path.sh)",
+      "Bash(chmod +x download_modelscope.sh)",
+      "Bash(bash -n download_modelscope.sh)",
+      "Bash(chmod +x download_cfd_benchmark.sh download_airfrans.sh)",
+      "Bash(bash -n download_cfd_benchmark.sh)",
+      "Bash(bash -n download_airfrans.sh)",
+      "Bash(chmod +x check_other.sh)",
+      "Bash(bash -n check_other.sh)",
+      "Bash(chmod +x train_evaluate.sh)",
+      "Bash(bash -n train_evaluate.sh)"
+    ]
+  }
+}

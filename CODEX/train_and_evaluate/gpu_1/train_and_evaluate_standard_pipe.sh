@@ -9,6 +9,7 @@ DATA_ROOT="${DATA_ROOT:-/inspire/hdd/project/urbanlowaltitude/yuanmeilu-25311405
 GPU_ID="${GPU_ID:-1}"
 EPOCHS="${EPOCHS:-500}"
 CHECKPOINT_INTERVAL="${CHECKPOINT_INTERVAL:-100}"
+VISUALIZATION_INTERVAL="${VISUALIZATION_INTERVAL:-100}"
 SEED="${SEED:-0}"
 OUTPUT_ROOT="${OUTPUT_ROOT:-$PDE_ROOT/output}"
 for DATA_FILE in Pipe_X.npy Pipe_Y.npy Pipe_Q.npy; do
@@ -31,7 +32,7 @@ python exp_pipe.py \
   --gpu "$GPU_ID" \
   --model Transolver_Structured_Mesh_2D \
   --n-hidden 128 --n-heads 8 --n-layers 8 \
-  --mlp_ratio 2 --lr 0.001 --max_grad_norm 0.1 --batch-size 8 \
+  --mlp_ratio 2 --lr 0.001 --max_grad_norm 0.1 --batch-size 4 \
   --slice_num 64 --unified_pos 0 --ref 8 \
   --epochs "$EPOCHS" --eval 0 \
   --save_name pipe_Transolver \
@@ -39,6 +40,7 @@ python exp_pipe.py \
   --output_root "$OUTPUT_ROOT" \
   --experiment_dir "$EXPERIMENT_DIR" \
   --checkpoint_interval "$CHECKPOINT_INTERVAL" \
+  --visualization_interval "$VISUALIZATION_INTERVAL" \
   --seed "$SEED" \
   2>&1 | tee "$EXPERIMENT_DIR/logs/train_console.log"
 
@@ -46,7 +48,7 @@ python exp_pipe.py \
   --gpu "$GPU_ID" \
   --model Transolver_Structured_Mesh_2D \
   --n-hidden 128 --n-heads 8 --n-layers 8 \
-  --mlp_ratio 2 --lr 0.001 --max_grad_norm 0.1 --batch-size 8 \
+  --mlp_ratio 2 --lr 0.001 --max_grad_norm 0.1 --batch-size 4 \
   --slice_num 64 --unified_pos 0 --ref 8 \
   --epochs "$EPOCHS" --eval 1 \
   --save_name pipe_Transolver \
@@ -54,6 +56,7 @@ python exp_pipe.py \
   --output_root "$OUTPUT_ROOT" \
   --experiment_dir "$EXPERIMENT_DIR" \
   --checkpoint_interval "$CHECKPOINT_INTERVAL" \
+  --visualization_interval "$VISUALIZATION_INTERVAL" \
   --seed "$SEED" \
   2>&1 | tee "$EXPERIMENT_DIR/logs/evaluation_console.log"
 

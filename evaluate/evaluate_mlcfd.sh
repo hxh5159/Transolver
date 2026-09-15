@@ -15,7 +15,7 @@
 set -uo pipefail
 
 # ---------- 路径配置 ----------
-CAR_DIR="${CAR_DIR:-/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_sceen/Car-Design-ShapeNetCar}"
+CAR_DIR="${CAR_DIR:-/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_re/Car-Design-ShapeNetCar}"
 DATA="${DATA:-/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data}"
 DATA_DIR="$DATA/mlcfd/training_data"
 SAVE_DIR="$DATA/mlcfd/preprocessed_data"

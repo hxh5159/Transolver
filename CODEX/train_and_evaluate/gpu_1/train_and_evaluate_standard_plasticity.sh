@@ -9,6 +9,7 @@ DATA_ROOT="${DATA_ROOT:-/inspire/hdd/project/urbanlowaltitude/yuanmeilu-25311405
 GPU_ID="${GPU_ID:-1}"
 EPOCHS="${EPOCHS:-500}"
 CHECKPOINT_INTERVAL="${CHECKPOINT_INTERVAL:-100}"
+VISUALIZATION_INTERVAL="${VISUALIZATION_INTERVAL:-100}"
 SEED="${SEED:-0}"
 OUTPUT_ROOT="${OUTPUT_ROOT:-$PDE_ROOT/output}"
 if [[ ! -s "$DATA_ROOT/plas_N987_T20.mat" ]]; then
@@ -37,6 +38,7 @@ python exp_plas.py \
   --output_root "$OUTPUT_ROOT" \
   --experiment_dir "$EXPERIMENT_DIR" \
   --checkpoint_interval "$CHECKPOINT_INTERVAL" \
+  --visualization_interval "$VISUALIZATION_INTERVAL" \
   --seed "$SEED" \
   2>&1 | tee "$EXPERIMENT_DIR/logs/train_console.log"
 
@@ -52,6 +54,7 @@ python exp_plas.py \
   --output_root "$OUTPUT_ROOT" \
   --experiment_dir "$EXPERIMENT_DIR" \
   --checkpoint_interval "$CHECKPOINT_INTERVAL" \
+  --visualization_interval "$VISUALIZATION_INTERVAL" \
   --seed "$SEED" \
   2>&1 | tee "$EXPERIMENT_DIR/logs/evaluation_console.log"
 

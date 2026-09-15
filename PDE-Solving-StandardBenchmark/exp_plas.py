@@ -1,5 +1,8 @@
 import os
 import argparse
+import matplotlib
+
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import time
 import traceback
@@ -32,6 +35,7 @@ parser.add_argument('--experiment_dir', type=str, default=None)
 parser.add_argument('--model_path', type=str, default=None)
 parser.add_argument('--resume', type=str, default=None)
 parser.add_argument('--checkpoint_interval', type=int, default=100)
+parser.add_argument('--visualization_interval', type=int, default=100)
 parser.add_argument('--seed', type=int, default=0)
 parser.add_argument('--deterministic', action='store_true')
 args = parser.parse_args()
@@ -50,6 +54,10 @@ from utils.experiment import (
     finalize_training, infer_experiment_dir, initialize, initialize_evaluation, load_model_state,
     prepare_experiment, record_epoch, restore_training, save_checkpoint, set_seed,
     update_config, update_status, write_json,
+)
+from utils.visualization import (
+    create_deformation_training_visualization,
+    finalize_deformation_evaluation, relative_l2_per_sample,
 )
 
 artifact_paths = prepare_experiment(
@@ -217,6 +225,9 @@ def main():
         os.makedirs(result_dir, exist_ok=True)
         test_l2_step = 0
         test_l2_full = 0
+        sample_errors = []
+        latencies_ms = []
+        evaluation_cases = []
         showcase = 10
         id = 0
         with torch.no_grad():
@@ -226,6 +237,9 @@ def main():
                 x, fx, tim, yy = x.cuda(), fx.cuda(), tim.cuda(), yy.cuda()
                 bsz = x.shape[0]
 
+                if x.is_cuda:
+                    torch.cuda.synchronize(x.device)
+                forward_started = time.perf_counter()
                 for t in range(T):
                     y = yy[..., t:t + 1]
                     input_T = tim[:, t:t + 1].reshape(bsz, 1)
@@ -235,6 +249,17 @@ def main():
                         pred = im.unsqueeze(-1)
                     else:
                         pred = torch.cat((pred, im.unsqueeze(-1)), -1)
+                if x.is_cuda:
+                    torch.cuda.synchronize(x.device)
+                rollout_latency_ms = (time.perf_counter() - forward_started) * 1000.0 / bsz
+                batch_errors = relative_l2_per_sample(pred, yy)
+                sample_errors.extend(batch_errors.tolist())
+                latencies_ms.extend([rollout_latency_ms] * bsz)
+                for sample in range(bsz):
+                    evaluation_cases.append({
+                        'prediction': pred[sample].detach().cpu().numpy(),
+                        'target': yy[sample].detach().cpu().numpy(),
+                    })
 
                 if id < showcase:
                     print(id)
@@ -276,12 +301,15 @@ def main():
         test_step_metric = test_l2_step / ntest / T
         test_full_metric = test_l2_full / ntest
         print("test_step_loss:{:.5f} , test_full_loss:{:.5f}".format(test_step_metric, test_full_metric))
+        visualization_metrics = finalize_deformation_evaluation(
+            artifact_paths['evaluation'], sample_errors, latencies_ms, evaluation_cases)
         write_json(os.path.join(artifact_paths['evaluation'], 'evaluation_metrics.json'), {
             'status': 'completed', 'benchmark': 'plasticity',
             'checkpoint': checkpoint_path,
             'test_step_relative_l2': float(test_step_metric),
             'test_full_relative_l2': float(test_full_metric),
             'test_samples': ntest, 'time_steps': T,
+            **visualization_metrics,
         })
     else:
         for ep in range(start_epoch, args.epochs):
@@ -312,6 +340,7 @@ def main():
             model.eval()
             test_l2_step = 0
             test_l2_full = 0
+            periodic_case = None
             with torch.no_grad():
                 for x, tim, fx, yy in test_loader:
                     loss = 0
@@ -328,6 +357,11 @@ def main():
                         else:
                             pred = torch.cat((pred, im.unsqueeze(-1)), -1)
 
+                    if periodic_case is None:
+                        periodic_case = (
+                            pred[0].detach().cpu().numpy(),
+                            yy[0].detach().cpu().numpy())
+
                     test_l2_step += loss.item()
                     test_l2_full += myloss(pred.reshape(bsz, -1), yy.reshape(bsz, -1)).item()
 
@@ -343,6 +377,12 @@ def main():
                 train_step_loss=float(train_step_metric),
                 test_step_loss=float(test_step_metric),
                 test_full_loss=float(test_full_metric))
+            if (args.visualization_interval > 0
+                    and (ep + 1) % args.visualization_interval == 0
+                    and periodic_case is not None):
+                create_deformation_training_visualization(
+                    artifact_paths, history, ep + 1, args.checkpoint_interval,
+                    periodic_case[0], periodic_case[1])
             if args.checkpoint_interval > 0 and (ep + 1) % args.checkpoint_interval == 0:
                 print('save model')
                 save_checkpoint(

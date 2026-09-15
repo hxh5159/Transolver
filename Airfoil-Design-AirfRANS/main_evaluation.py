@@ -1,4 +1,8 @@
 import yaml, json
+import datetime
+import shlex
+import sys
+import random
 import torch
 import utils.metrics as metrics
 from dataset.dataset import Dataset
@@ -14,7 +18,14 @@ parser.add_argument('--save_path', default='./', type=str)  # model save path
 parser.add_argument('--experiment_dir', default=None, type=str)
 parser.add_argument('--model_path', default=None, type=str)
 parser.add_argument('--task', default='full', type=str)
+parser.add_argument('--seed', default=0, type=int)
 args = parser.parse_args()
+
+random.seed(args.seed)
+np.random.seed(args.seed)
+torch.manual_seed(args.seed)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(args.seed)
 
 # Compute the normalization used for the training
 
@@ -74,6 +85,14 @@ for task in tasks:
     results_dir = (osp.join(osp.abspath(args.experiment_dir), 'evaluation')
                    if args.experiment_dir else osp.join(ckpt_root_dir, 'scores', task))
     os.makedirs(results_dir, exist_ok=True)
+    with open(osp.join(results_dir, 'evaluation_config.json'), 'w') as file:
+        json.dump({
+            'started_at': datetime.datetime.now().astimezone().isoformat(),
+            'command': shlex.join([sys.executable] + sys.argv),
+            'arguments': vars(args),
+            'model_path': model_path,
+            'task': task,
+        }, file, indent=2)
     coefs = metrics.Results_test(device, models, hparams, coef_norm, data_dir, results_dir, n_test=3, criterion='MSE',
                                  s=s)
     # models can be a stack of the same model (for example MLP) on the task s, if you have another stack of another model (for example GraphSAGE)
@@ -88,3 +107,14 @@ for task in tasks:
         np.save(osp.join(results_dir, 'surf_coefs_' + str(n)), file)
     np.save(osp.join(results_dir, 'true_bls'), coefs[5])
     np.save(osp.join(results_dir, 'bls'), coefs[6])
+    with open(osp.join(results_dir, 'score.json'), 'r') as file:
+        score = json.load(file)
+    with open(osp.join(results_dir, 'evaluation_metrics.json'), 'w') as file:
+        json.dump({
+            'status': 'completed',
+            'finished_at': datetime.datetime.now().astimezone().isoformat(),
+            'task': task,
+            'model_path': model_path,
+            'test_split': s,
+            'score': score,
+        }, file, indent=2)
