@@ -12,3 +12,26 @@ python -c "import torch; from torch_geometric.nn import radius_graph; radius_gra
 
 # 3. 重跑训练
 bash train_car.sh
+
+
+# ============================================================
+# 补充：完整依赖安装（上面只装了 torch / torch_geometric / pyg-lib，
+#       还缺下面这些，训练所有数据集都需要）
+# 注意：上面第 2 行的 cu121 应改成 cu128（你的驱动是 CUDA 12.8）
+# ============================================================
+
+# 通用依赖（6 个标准基准必需：einops=rearrange, timm=trunc_normal_, scipy=loadmat, matplotlib=画图）
+pip install einops timm scipy matplotlib tqdm
+
+# 汽车设计任务（读 VTK + 最近邻）
+pip install vtk scikit-learn
+
+# 翼型设计任务（读 .vtu/.vtp + 可视化 + 读 yaml）
+pip install seaborn pyvista pyyaml
+
+# 完整自检（一次性验证所有关键依赖可用）
+python -c "import torch, torch_geometric, einops, timm, scipy, matplotlib; from torch_geometric.nn import radius_graph; radius_graph(torch.randn(8,2), r=0.5, max_num_neighbors=8); print('全部依赖 OK')"
+
+# 注：如果 pyg-lib 因 data.pyg.org 的 SSL 问题装不上（报 SSL UNEXPECTED_EOF / No matching distribution），用离线 wheel：
+#   1) 在能访问 data.pyg.org 的机器下载： pyg_lib-0.6.0+pt211cu128-cp310-cp310-manylinux_2_28_x86_64.whl
+#   2) scp 到远端后： pip install pyg_lib-0.6.0+pt211cu128-cp310-cp310-manylinux_2_28_x86_64.whl
