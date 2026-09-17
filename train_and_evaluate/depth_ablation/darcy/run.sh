@@ -19,6 +19,7 @@ N_HIDDEN=128; N_HEADS=8; LR=0.001; MAX_GRAD_NORM=0.1; BATCH=4
 SLICE=64; UNIFIED=1; REF=8; DOWNSAMPLE=5
 DATA_PATH="$DATA/fno"
 GPU="${GPU:-0}"
+SEED="${SEED:-0}"
 BLOCKS=(4 5 6 7)
 
 log() { echo "[$(date '+%F %T')] $*"; }
@@ -35,14 +36,14 @@ cd "$BENCH_DIR"
 
 run_block() {
   local N="$1"
-  local EXP_DIR="$OUTPUT_DIR/$DATASET/block_$N"
+  local EXP_DIR="$OUTPUT_DIR/$DATASET/seed_${SEED}/block_$N"
   log "===== $DATASET | block $N | GPU $GPU ====="
   python exp_darcy.py \
     --model "$MODEL" --n-hidden "$N_HIDDEN" --n-heads "$N_HEADS" --n-layers "$N" \
     --lr "$LR" --max_grad_norm "$MAX_GRAD_NORM" --batch-size "$BATCH" \
     --slice_num "$SLICE" --unified_pos "$UNIFIED" --ref "$REF" --downsample "$DOWNSAMPLE" \
     --gpu "$GPU" --data_path "$DATA_PATH" --save_name "block_${N}" \
-    --experiment_dir "$EXP_DIR" --seed 0 --eval 0 \
+    --experiment_dir "$EXP_DIR" --seed "$SEED" --eval 0 \
     || { log "block $N 训练失败"; return 1; }
 
   log "评估 block $N"

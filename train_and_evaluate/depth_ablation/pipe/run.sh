@@ -21,6 +21,7 @@ SLICE=64; UNIFIED=0; REF=8
 DATA_PATH="$DATA/fno/pipe"
 # (block, gpu) 对：GPU0 跑 4、7；GPU1 跑 5、6
 TASKS=("4 0" "5 1" "7 0" "6 1")
+SEED="${SEED:-0}"
 
 log() { echo "[$(date '+%F %T')] $*"; }
 
@@ -36,14 +37,14 @@ cd "$BENCH_DIR"
 
 run_block() {
   local N="$1" gpu="$2"
-  local EXP_DIR="$OUTPUT_DIR/$DATASET/block_$N"
+  local EXP_DIR="$OUTPUT_DIR/$DATASET/seed_${SEED}/block_$N"
   log "===== $DATASET | block $N | GPU $gpu ====="
   python exp_pipe.py \
     --model "$MODEL" --n-hidden "$N_HIDDEN" --n-heads "$N_HEADS" --n-layers "$N" \
     --mlp_ratio "$MLP_RATIO" --lr "$LR" --max_grad_norm "$MAX_GRAD_NORM" --batch-size "$BATCH" \
     --slice_num "$SLICE" --unified_pos "$UNIFIED" --ref "$REF" \
     --gpu "$gpu" --data_path "$DATA_PATH" --save_name "block_${N}" \
-    --experiment_dir "$EXP_DIR" --seed 0 --eval 0 \
+    --experiment_dir "$EXP_DIR" --seed "$SEED" --eval 0 \
     || { log "block $N 训练失败"; return 1; }
 
   log "评估 block $N"
