@@ -1,0 +1,142 @@
+{
+  "input_root": "/home/hwz/Transolver/LINEARNO/monitor/analysis/transolver_monitor_output_20260917_074049/LINEARNO/monitor/output",
+  "requested_epochs": [
+    1,
+    100,
+    200,
+    300,
+    400,
+    500
+  ],
+  "epoch_one_mapping": "validation_000001",
+  "runs": {
+    "standard_airfoil": "/home/hwz/Transolver/LINEARNO/monitor/analysis/transolver_monitor_output_20260917_074049/LINEARNO/monitor/output/standard_airfoil/20260916_193631_standard_airfoil_Transolver_train",
+    "darcy": "/home/hwz/Transolver/LINEARNO/monitor/analysis/transolver_monitor_output_20260917_074049/LINEARNO/monitor/output/darcy/20260916_193756_darcy_UniPDE_train",
+    "elasticity": "/home/hwz/Transolver/LINEARNO/monitor/analysis/transolver_monitor_output_20260917_074049/LINEARNO/monitor/output/elasticity/20260916_194317_elasticity_Transolver_train",
+    "pipe": "/home/hwz/Transolver/LINEARNO/monitor/analysis/transolver_monitor_output_20260917_074049/LINEARNO/monitor/output/pipe/20260916_194330_pipe_Transolver_train"
+  },
+  "snapshots": {
+    "standard_airfoil": [
+      {
+        "requested_epoch": 1,
+        "source_validation_index": 1
+      },
+      {
+        "requested_epoch": 100,
+        "source_validation_index": 100
+      },
+      {
+        "requested_epoch": 200,
+        "source_validation_index": 200
+      },
+      {
+        "requested_epoch": 300,
+        "source_validation_index": 300
+      },
+      {
+        "requested_epoch": 400,
+        "source_validation_index": 400
+      },
+      {
+        "requested_epoch": 500,
+        "source_validation_index": 500
+      }
+    ],
+    "darcy": [
+      {
+        "requested_epoch": 1,
+        "source_validation_index": 1
+      },
+      {
+        "requested_epoch": 100,
+        "source_validation_index": 100
+      },
+      {
+        "requested_epoch": 200,
+        "source_validation_index": 200
+      },
+      {
+        "requested_epoch": 300,
+        "source_validation_index": 300
+      },
+      {
+        "requested_epoch": 400,
+        "source_validation_index": 400
+      },
+      {
+        "requested_epoch": 500,
+        "source_validation_index": 500
+      }
+    ],
+    "elasticity": [
+      {
+        "requested_epoch": 1,
+        "source_validation_index": 1
+      },
+      {
+        "requested_epoch": 100,
+        "source_validation_index": 100
+      },
+      {
+        "requested_epoch": 200,
+        "source_validation_index": 200
+      },
+      {
+        "requested_epoch": 300,
+        "source_validation_index": 300
+      },
+      {
+        "requested_epoch": 400,
+        "source_validation_index": 400
+      },
+      {
+        "requested_epoch": 500,
+        "source_validation_index": 500
+      }
+    ],
+    "pipe": [
+      {
+        "requested_epoch": 1,
+        "source_validation_index": 1
+      },
+      {
+        "requested_epoch": 100,
+        "source_validation_index": 100
+      },
+      {
+        "requested_epoch": 200,
+        "source_validation_index": 200
+      },
+      {
+        "requested_epoch": 300,
+        "source_validation_index": 300
+      },
+      {
+        "requested_epoch": 400,
+        "source_validation_index": 400
+      },
+      {
+        "requested_epoch": 500,
+        "source_validation_index": 500
+      }
+    ]
+  },
+  "outputs": [
+    {
+      "kernel": "full",
+      "label": "matched full kernel $WAD^{-1}W^\\top$",
+      "png": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/four_dataset_full_kernel_heatmaps.png",
+      "pdf": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/four_dataset_full_kernel_heatmaps.pdf",
+      "svg": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/four_dataset_full_kernel_heatmaps.svg",
+      "csv": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/four_dataset_full_kernel_heatmaps_data.csv"
+    },
+    {
+      "kernel": "base",
+      "label": "matched base routing kernel $WD^{-1}W^\\top$",
+      "png": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/four_dataset_base_kernel_heatmaps.png",
+      "pdf": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/four_dataset_base_kernel_heatmaps.pdf",
+      "svg": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/four_dataset_base_kernel_heatmaps.svg",
+      "csv": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/four_dataset_base_kernel_heatmaps_data.csv"
+    }
+  ]
+}

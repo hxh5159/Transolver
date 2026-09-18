@@ -20,7 +20,7 @@ N_HIDDEN=128; N_HEADS=8; MLP_RATIO=2; LR=0.001; MAX_GRAD_NORM=0.1; BATCH=8
 SLICE=64; UNIFIED=0; REF=8
 DATA_PATH="$DATA/fno/pipe"
 # (block, gpu) 对：GPU0 跑 4、7；GPU1 跑 5、6
-TASKS=("4 0" "5 1" "7 0" "6 1")
+# GPU0: block 16；GPU1: block 4, 12（run_block 直接指定 GPU）
 SEED="${SEED:-0}"
 
 log() { echo "[$(date '+%F %T')] $*"; }
@@ -86,7 +86,11 @@ run_batch() {
 }
 
 # 第 1 批：block4(GPU0) + block5(GPU1)；第 2 批：block7(GPU0) + block6(GPU1)
-run_batch 0 1 || { log "第 1 批失败"; exit 1; }
-run_batch 2 3 || { log "第 2 批失败"; exit 1; }
+# GPU0 跑 block 16；GPU1 依次跑 block 4, 12（两卡并行）
+( run_block 16 0 ) & P1=$!
+( run_block 4 1 && run_block 12 1 ) & P2=$!
+wait "$P1"; R1=$?
+wait "$P2"; R2=$?
+if [ "$R1" -ne 0 ] || [ "$R2" -ne 0 ]; then log "有任务失败"; exit 1; fi
 
 log "完成。所有输出在 $OUTPUT_DIR/$DATASET/"

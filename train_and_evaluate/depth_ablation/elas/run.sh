@@ -20,7 +20,7 @@ SLICE=64; UNIFIED=0; REF=8
 DATA_PATH="$DATA/fno"
 GPU="${GPU:-0}"
 SEED="${SEED:-0}"
-BLOCKS=(4 5 6 7)
+BLOCKS=(4 8 12 6)
 
 log() { echo "[$(date '+%F %T')] $*"; }
 
@@ -35,14 +35,14 @@ fi
 cd "$BENCH_DIR"
 
 run_block() {
-  local N="$1"
+  local N="$1" gpu="$2"
   local EXP_DIR="$OUTPUT_DIR/$DATASET/seed_${SEED}/block_$N"
-  log "===== $DATASET | block $N | GPU $GPU ====="
+  log "===== $DATASET | block $N | GPU $gpu ====="
   python exp_elas.py \
     --model "$MODEL" --n-hidden "$N_HIDDEN" --n-heads "$N_HEADS" --n-layers "$N" \
     --lr "$LR" --max_grad_norm "$MAX_GRAD_NORM" --batch-size "$BATCH" \
     --slice_num "$SLICE" --unified_pos "$UNIFIED" --ref "$REF" \
-    --gpu "$GPU" --data_path "$DATA_PATH" --save_name "block_${N}" \
+    --gpu "$gpu" --data_path "$DATA_PATH" --save_name "block_${N}" \
     --experiment_dir "$EXP_DIR" --seed "$SEED" --eval 0 \
     || { log "block $N 训练失败"; return 1; }
 
@@ -51,7 +51,7 @@ run_block() {
     --model "$MODEL" --n-hidden "$N_HIDDEN" --n-heads "$N_HEADS" --n-layers "$N" \
     --lr "$LR" --max_grad_norm "$MAX_GRAD_NORM" --batch-size "$BATCH" \
     --slice_num "$SLICE" --unified_pos "$UNIFIED" --ref "$REF" \
-    --gpu "$GPU" --data_path "$DATA_PATH" --save_name "block_${N}" \
+    --gpu "$gpu" --data_path "$DATA_PATH" --save_name "block_${N}" \
     --experiment_dir "$EXP_DIR" --eval 1 \
     || { log "block $N 评估失败"; return 1; }
 
@@ -71,8 +71,11 @@ print(line)
 PY
 }
 
-for N in "${BLOCKS[@]}"; do
-  run_block "$N" || exit 1
-done
+# GPU0 依次跑 block 4, 12；GPU1 跑 block 16（两卡并行）
+( run_block 4 0 && run_block 12 0 ) & P1=$!
+( run_block 16 1 ) & P2=$!
+wait "$P1"; R1=$?
+wait "$P2"; R2=$?
+if [ "$R1" -ne 0 ] || [ "$R2" -ne 0 ]; then log "有任务失败"; exit 1; fi
 
 log "完成。所有输出在 $OUTPUT_DIR/$DATASET/"

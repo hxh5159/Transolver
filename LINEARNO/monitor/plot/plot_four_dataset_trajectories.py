@@ -25,10 +25,10 @@ import matplotlib.pyplot as plt
 
 
 DATASETS = (
+    ("standard_airfoil", "Airfoil"),
     ("darcy", "Darcy"),
     ("elasticity", "Elasticity"),
     ("pipe", "Pipe"),
-    ("standard_airfoil", "Standard Airfoil"),
 )
 SNAPSHOT_PATTERN = re.compile(r"validation_(\d+)$")
 
@@ -86,7 +86,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Plot P_base and P_full mean off-diagonal cross-layer similarity "
-            "for Darcy, Elasticity, Pipe, and Standard Airfoil."
+            "for Airfoil, Darcy, Elasticity, and Pipe."
         )
     )
     parser.add_argument(

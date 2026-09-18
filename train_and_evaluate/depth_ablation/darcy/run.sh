@@ -18,9 +18,9 @@ MODEL=Transolver_Structured_Mesh_2D
 N_HIDDEN=128; N_HEADS=8; LR=0.001; MAX_GRAD_NORM=0.1; BATCH=4
 SLICE=64; UNIFIED=1; REF=8; DOWNSAMPLE=5
 DATA_PATH="$DATA/fno"
-GPU="${GPU:-0}"
+GPU="${GPU:-1}"
 SEED="${SEED:-0}"
-BLOCKS=(4 5 6 7)
+BLOCKS=(4 12 16)
 
 log() { echo "[$(date '+%F %T')] $*"; }
 

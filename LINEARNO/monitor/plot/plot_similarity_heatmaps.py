@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Publication-ready cross-layer kernel-similarity heatmaps.
 
-Creates one 2x3 figure per benchmark. Columns are requested epochs 0, 100,
+Creates one 2x3 figure per benchmark. Columns are requested epochs 1, 100,
 and 200; rows are the permutation-invariant matched full kernel and base
-routing kernel. The monitor stores the initial state in validation_000001,
-which is used as the epoch-0 panel.
+routing kernel. The monitor stores the first validation in validation_000001,
+which is used as the epoch-1 panel.
 """
 
 from __future__ import annotations
@@ -23,10 +23,10 @@ import matplotlib.pyplot as plt
 
 
 DATASETS = (
+    ("standard_airfoil", "Airfoil"),
     ("darcy", "Darcy"),
     ("elasticity", "Elasticity"),
     ("pipe", "Pipe"),
-    ("standard_airfoil", "Standard Airfoil"),
 )
 SNAPSHOT_RE = re.compile(r"validation_(\d+)$")
 
@@ -179,7 +179,7 @@ def plot_one(dataset: str, display: str, run: Path, epochs: tuple[int, ...], out
                 image = axis.imshow(matrix, origin="lower", cmap="viridis",
                                     vmin=0.0, vmax=1.0, interpolation="nearest", aspect="equal")
                 images.append(image)
-                title = "Epoch 0 (initial)" if epoch == 0 else f"Epoch {epoch}"
+                title = "Epoch 1" if epoch == 0 else f"Epoch {epoch}"
                 axis.set_title(f"({chr(97 + panel)}) {title}", loc="left", pad=3)
                 axis.set_xticks(range(n))
                 axis.set_yticks(range(n))
@@ -227,10 +227,10 @@ def plot_one(dataset: str, display: str, run: Path, epochs: tuple[int, ...], out
         "  \\centering\n"
         f"  \\includegraphics[width=\\linewidth]{{{dataset}_similarity_heatmaps.pdf}}\n"
         f"  \\caption{{\\textbf{{Evolution of cross-layer propagation-kernel similarity on {display}.}} "
-        "Columns show the initial state (reported as epoch 0), epoch 100, and epoch 200. "
+        "Columns show epoch 1, epoch 100, and epoch 200. "
         "The upper row is the matched full kernel $WAD^{-1}W^\\top$ and the lower row is the matched "
         "base routing kernel $WD^{-1}W^\\top$. The common 0--1 color scale makes temporal changes "
-        "directly comparable; epoch 0 is sourced from validation_000001.}}\n"
+        "directly comparable; epoch 1 is sourced from validation_000001.}}\n"
         f"  \\label{{fig:{dataset}-kernel-similarity-heatmaps}}\n"
         "\\end{figure}\n",
         encoding="utf-8",
@@ -249,7 +249,7 @@ def main() -> int:
     monitor_dir = plot_dir.parent
     parser.add_argument("--input-root", type=Path, default=None)
     parser.add_argument("--output-dir", type=Path, default=plot_dir / "output")
-    parser.add_argument("--epochs", default="0,100,200")
+    parser.add_argument("--epochs", default="1,100,200")
     parser.add_argument("--run", action="append", default=[], metavar="DATASET=PATH")
     parser.add_argument("--profile", choices=("iclr", "two-column"), default="iclr")
     parser.add_argument("--annotate", action="store_true")
@@ -263,7 +263,7 @@ def main() -> int:
     width, height = ((5.5, 4.7) if args.profile == "iclr" else (7.0, 5.1))
     manifest = {"input_root": str(root), "profile": args.profile,
                 "requested_epochs": list(epochs),
-                "epoch_zero_mapping": "validation_000001", "figures": []}
+                "epoch_one_mapping": "validation_000001", "figures": []}
     for dataset, display in DATASETS:
         run = choose_run(root, dataset, overrides.get(dataset))
         manifest["figures"].append(plot_one(dataset, display, run, epochs, out,
