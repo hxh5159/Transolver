@@ -1,0 +1,495 @@
+{
+  "captured_at": "2026-09-16T23:01:41.136011+00:00",
+  "physics_attention_blocks": 8,
+  "layers": [
+    {
+      "label": "Block 1",
+      "class": "Physics_Attention_Irregular_Mesh",
+      "module": "model.Physics_Attention.Physics_Attention_Irregular_Mesh",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Linear",
+      "trainable_parameters": 51400,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              1.9856219291687012
+            ]
+          ],
+          [
+            [
+              1.638324499130249
+            ]
+          ],
+          [
+            [
+              1.8822057247161865
+            ]
+          ],
+          [
+            [
+              1.7182557582855225
+            ]
+          ],
+          [
+            [
+              3.424570322036743
+            ]
+          ],
+          [
+            [
+              3.9214694499969482
+            ]
+          ],
+          [
+            [
+              1.5998802185058594
+            ]
+          ],
+          [
+            [
+              4.77730131149292
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 2",
+      "class": "Physics_Attention_Irregular_Mesh",
+      "module": "model.Physics_Attention.Physics_Attention_Irregular_Mesh",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Linear",
+      "trainable_parameters": 51400,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              1.733403205871582
+            ]
+          ],
+          [
+            [
+              1.5146946907043457
+            ]
+          ],
+          [
+            [
+              -0.060441918671131134
+            ]
+          ],
+          [
+            [
+              0.5653746128082275
+            ]
+          ],
+          [
+            [
+              0.000443009048467502
+            ]
+          ],
+          [
+            [
+              0.5443376898765564
+            ]
+          ],
+          [
+            [
+              2.2843735218048096
+            ]
+          ],
+          [
+            [
+              2.399412155151367
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 3",
+      "class": "Physics_Attention_Irregular_Mesh",
+      "module": "model.Physics_Attention.Physics_Attention_Irregular_Mesh",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Linear",
+      "trainable_parameters": 51400,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              1.0319576263427734
+            ]
+          ],
+          [
+            [
+              1.817087173461914
+            ]
+          ],
+          [
+            [
+              1.7280323505401611
+            ]
+          ],
+          [
+            [
+              1.621587872505188
+            ]
+          ],
+          [
+            [
+              1.6257144212722778
+            ]
+          ],
+          [
+            [
+              1.7413100004196167
+            ]
+          ],
+          [
+            [
+              1.7651108503341675
+            ]
+          ],
+          [
+            [
+              2.02433443069458
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 4",
+      "class": "Physics_Attention_Irregular_Mesh",
+      "module": "model.Physics_Attention.Physics_Attention_Irregular_Mesh",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Linear",
+      "trainable_parameters": 51400,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              1.7542917728424072
+            ]
+          ],
+          [
+            [
+              0.40783414244651794
+            ]
+          ],
+          [
+            [
+              1.7176215648651123
+            ]
+          ],
+          [
+            [
+              0.9538592100143433
+            ]
+          ],
+          [
+            [
+              1.0855292081832886
+            ]
+          ],
+          [
+            [
+              1.0450834035873413
+            ]
+          ],
+          [
+            [
+              1.7395637035369873
+            ]
+          ],
+          [
+            [
+              1.531461477279663
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 5",
+      "class": "Physics_Attention_Irregular_Mesh",
+      "module": "model.Physics_Attention.Physics_Attention_Irregular_Mesh",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Linear",
+      "trainable_parameters": 51400,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              1.5868223905563354
+            ]
+          ],
+          [
+            [
+              0.900961697101593
+            ]
+          ],
+          [
+            [
+              1.3278846740722656
+            ]
+          ],
+          [
+            [
+              1.2609776258468628
+            ]
+          ],
+          [
+            [
+              1.0626167058944702
+            ]
+          ],
+          [
+            [
+              1.22175133228302
+            ]
+          ],
+          [
+            [
+              1.339324712753296
+            ]
+          ],
+          [
+            [
+              1.2657660245895386
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 6",
+      "class": "Physics_Attention_Irregular_Mesh",
+      "module": "model.Physics_Attention.Physics_Attention_Irregular_Mesh",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Linear",
+      "trainable_parameters": 51400,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              1.2299258708953857
+            ]
+          ],
+          [
+            [
+              0.9270226955413818
+            ]
+          ],
+          [
+            [
+              1.125480055809021
+            ]
+          ],
+          [
+            [
+              1.275217056274414
+            ]
+          ],
+          [
+            [
+              1.0726155042648315
+            ]
+          ],
+          [
+            [
+              1.1166895627975464
+            ]
+          ],
+          [
+            [
+              1.5382659435272217
+            ]
+          ],
+          [
+            [
+              1.1409529447555542
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 7",
+      "class": "Physics_Attention_Irregular_Mesh",
+      "module": "model.Physics_Attention.Physics_Attention_Irregular_Mesh",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Linear",
+      "trainable_parameters": 51400,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              0.6623493432998657
+            ]
+          ],
+          [
+            [
+              0.647224485874176
+            ]
+          ],
+          [
+            [
+              0.6478123664855957
+            ]
+          ],
+          [
+            [
+              0.712181031703949
+            ]
+          ],
+          [
+            [
+              0.833922266960144
+            ]
+          ],
+          [
+            [
+              0.6262208223342896
+            ]
+          ],
+          [
+            [
+              0.7760190367698669
+            ]
+          ],
+          [
+            [
+              0.7253202795982361
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 8",
+      "class": "Physics_Attention_Irregular_Mesh",
+      "module": "model.Physics_Attention.Physics_Attention_Irregular_Mesh",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Linear",
+      "trainable_parameters": 51400,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              1.3870705366134644
+            ]
+          ],
+          [
+            [
+              1.1776866912841797
+            ]
+          ],
+          [
+            [
+              2.5635879039764404
+            ]
+          ],
+          [
+            [
+              1.8553611040115356
+            ]
+          ],
+          [
+            [
+              1.4958969354629517
+            ]
+          ],
+          [
+            [
+              1.3392059803009033
+            ]
+          ],
+          [
+            [
+              1.5648717880249023
+            ]
+          ],
+          [
+            [
+              1.4730064868927002
+            ]
+          ]
+        ]
+      ]
+    }
+  ],
+  "scope": "spatial propagation kernels before value/output channel projections; this is not the full channel-valued block operator"
+}

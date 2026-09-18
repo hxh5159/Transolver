@@ -1,0 +1,108 @@
+{
+  "input_root": "/home/hwz/Transolver/LINEARNO/monitor/analysis/transolver_monitor_output_20260917_074049/LINEARNO/monitor/output",
+  "profile": "iclr",
+  "requested_epochs": [
+    0,
+    100,
+    200
+  ],
+  "epoch_zero_mapping": "validation_000001",
+  "figures": [
+    {
+      "dataset": "darcy",
+      "display_name": "Darcy",
+      "run_directory": "/home/hwz/Transolver/LINEARNO/monitor/analysis/transolver_monitor_output_20260917_074049/LINEARNO/monitor/output/darcy/20260916_193756_darcy_UniPDE_train",
+      "epochs": [
+        {
+          "requested_epoch": 0,
+          "source_validation_index": 1
+        },
+        {
+          "requested_epoch": 100,
+          "source_validation_index": 100
+        },
+        {
+          "requested_epoch": 200,
+          "source_validation_index": 200
+        }
+      ],
+      "png": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/darcy_similarity_heatmaps.png",
+      "pdf": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/darcy_similarity_heatmaps.pdf",
+      "svg": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/darcy_similarity_heatmaps.svg",
+      "csv": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/darcy_similarity_heatmaps_data.csv",
+      "caption": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/darcy_similarity_heatmaps_caption.tex"
+    },
+    {
+      "dataset": "elasticity",
+      "display_name": "Elasticity",
+      "run_directory": "/home/hwz/Transolver/LINEARNO/monitor/analysis/transolver_monitor_output_20260917_074049/LINEARNO/monitor/output/elasticity/20260916_194317_elasticity_Transolver_train",
+      "epochs": [
+        {
+          "requested_epoch": 0,
+          "source_validation_index": 1
+        },
+        {
+          "requested_epoch": 100,
+          "source_validation_index": 100
+        },
+        {
+          "requested_epoch": 200,
+          "source_validation_index": 200
+        }
+      ],
+      "png": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/elasticity_similarity_heatmaps.png",
+      "pdf": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/elasticity_similarity_heatmaps.pdf",
+      "svg": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/elasticity_similarity_heatmaps.svg",
+      "csv": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/elasticity_similarity_heatmaps_data.csv",
+      "caption": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/elasticity_similarity_heatmaps_caption.tex"
+    },
+    {
+      "dataset": "pipe",
+      "display_name": "Pipe",
+      "run_directory": "/home/hwz/Transolver/LINEARNO/monitor/analysis/transolver_monitor_output_20260917_074049/LINEARNO/monitor/output/pipe/20260916_194330_pipe_Transolver_train",
+      "epochs": [
+        {
+          "requested_epoch": 0,
+          "source_validation_index": 1
+        },
+        {
+          "requested_epoch": 100,
+          "source_validation_index": 100
+        },
+        {
+          "requested_epoch": 200,
+          "source_validation_index": 200
+        }
+      ],
+      "png": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/pipe_similarity_heatmaps.png",
+      "pdf": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/pipe_similarity_heatmaps.pdf",
+      "svg": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/pipe_similarity_heatmaps.svg",
+      "csv": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/pipe_similarity_heatmaps_data.csv",
+      "caption": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/pipe_similarity_heatmaps_caption.tex"
+    },
+    {
+      "dataset": "standard_airfoil",
+      "display_name": "Standard Airfoil",
+      "run_directory": "/home/hwz/Transolver/LINEARNO/monitor/analysis/transolver_monitor_output_20260917_074049/LINEARNO/monitor/output/standard_airfoil/20260916_193631_standard_airfoil_Transolver_train",
+      "epochs": [
+        {
+          "requested_epoch": 0,
+          "source_validation_index": 1
+        },
+        {
+          "requested_epoch": 100,
+          "source_validation_index": 100
+        },
+        {
+          "requested_epoch": 200,
+          "source_validation_index": 200
+        }
+      ],
+      "png": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/standard_airfoil_similarity_heatmaps.png",
+      "pdf": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/standard_airfoil_similarity_heatmaps.pdf",
+      "svg": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/standard_airfoil_similarity_heatmaps.svg",
+      "csv": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/standard_airfoil_similarity_heatmaps_data.csv",
+      "caption": "/home/hwz/Transolver/LINEARNO/monitor/plot/output/standard_airfoil_similarity_heatmaps_caption.tex"
+    }
+  ]
+}

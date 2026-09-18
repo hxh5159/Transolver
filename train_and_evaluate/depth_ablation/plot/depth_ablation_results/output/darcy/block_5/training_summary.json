@@ -1,0 +1,22 @@
+{
+  "status": "completed",
+  "started_at": "2026-09-17T09:15:17.710689+00:00",
+  "finished_at": "2026-09-17T11:28:32.839138+00:00",
+  "epochs_completed": 500,
+  "target_epochs": 500,
+  "time_elapsed_seconds": 7896.152137592435,
+  "mean_epoch_seconds": 15.79230427518487,
+  "median_epoch_seconds": 14.78955408371985,
+  "min_epoch_seconds": 10.095923062413931,
+  "max_epoch_seconds": 21.71009799838066,
+  "train_samples": 1000,
+  "test_samples": 200,
+  "final_model": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/darcy/block_5/model_final.pth",
+  "final_state_dict": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/darcy/block_5/model_final_state_dict.pth",
+  "final_checkpoint": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/darcy/block_5/checkpoints/checkpoint_final.pth",
+  "training_curve": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/darcy/block_5/visualizations/final_training_loss.png",
+  "nb_parameters": 1785705,
+  "final_train_relative_l2": 0.0027196577935788284,
+  "final_derivative_loss": 0.05962835867559616,
+  "final_test_relative_l2": 0.005311313262453131
+}

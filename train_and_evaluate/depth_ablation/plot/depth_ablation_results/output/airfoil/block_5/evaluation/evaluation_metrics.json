@@ -1,0 +1,24 @@
+{
+  "status": "completed",
+  "benchmark": "airfoil",
+  "checkpoint": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/airfoil/block_5/checkpoints/checkpoint_final.pth",
+  "relative_l2": 0.0056761829787865285,
+  "test_samples": 200,
+  "representative_cases": {
+    "best": 145,
+    "median": 144,
+    "worst": 107
+  },
+  "relative_l2_distribution": {
+    "mean": 0.005676183011964895,
+    "median": 0.004346197471022606,
+    "p95": 0.013033803086727854,
+    "max": 0.02324896864593029
+  },
+  "model_forward_latency_ms": {
+    "mean": 6.755561660975218,
+    "median": 4.946315195411444,
+    "p95": 5.3674401715397835,
+    "max": 93.29322632402182
+  }
+}

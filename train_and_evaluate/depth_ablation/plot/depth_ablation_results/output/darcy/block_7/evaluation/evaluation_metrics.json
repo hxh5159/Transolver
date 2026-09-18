@@ -1,0 +1,24 @@
+{
+  "status": "completed",
+  "benchmark": "darcy",
+  "checkpoint": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/darcy/block_7/checkpoints/checkpoint_final.pth",
+  "relative_l2": 0.005641071011801716,
+  "test_samples": 200,
+  "representative_cases": {
+    "best": 107,
+    "median": 195,
+    "worst": 175
+  },
+  "relative_l2_distribution": {
+    "mean": 0.005641071011801716,
+    "median": 0.005149018347830358,
+    "p95": 0.010405481175669487,
+    "max": 0.019865389700489115
+  },
+  "model_forward_latency_ms": {
+    "mean": 6.004272736608982,
+    "median": 4.4563887640833855,
+    "p95": 4.826891236007214,
+    "max": 83.21450650691986
+  }
+}

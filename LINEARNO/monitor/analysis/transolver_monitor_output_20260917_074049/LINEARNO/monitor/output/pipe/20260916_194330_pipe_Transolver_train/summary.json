@@ -1,0 +1,23 @@
+{
+  "status": "completed",
+  "validation_passes_observed": 500,
+  "snapshots": [
+    "snapshots/validation_000001",
+    "snapshots/validation_000050",
+    "snapshots/validation_000100",
+    "snapshots/validation_000150",
+    "snapshots/validation_000200",
+    "snapshots/validation_000250",
+    "snapshots/validation_000300",
+    "snapshots/validation_000350",
+    "snapshots/validation_000400",
+    "snapshots/validation_000450",
+    "snapshots/validation_000500"
+  ],
+  "monitor_error_count": 0,
+  "monitor_errors": [],
+  "target_status": "completed",
+  "started_at": "2026-09-16T19:43:30.653183+00:00",
+  "finished_at": "2026-09-16T23:32:05.760703+00:00",
+  "target_error": null
+}

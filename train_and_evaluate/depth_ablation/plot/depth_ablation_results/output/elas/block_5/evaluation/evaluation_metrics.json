@@ -1,0 +1,24 @@
+{
+  "status": "completed",
+  "benchmark": "elasticity",
+  "checkpoint": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/elas/block_5/checkpoints/checkpoint_final.pth",
+  "relative_l2": 0.009551921545062214,
+  "test_samples": 200,
+  "representative_cases": {
+    "best": 114,
+    "median": 107,
+    "worst": 124
+  },
+  "relative_l2_distribution": {
+    "mean": 0.009551921514794231,
+    "median": 0.008817969355732203,
+    "p95": 0.01664463048800826,
+    "max": 0.02323244698345661
+  },
+  "model_forward_latency_ms": {
+    "mean": 6.139321886003017,
+    "median": 5.122866481542587,
+    "p95": 5.507574044167992,
+    "max": 205.47040924429893
+  }
+}

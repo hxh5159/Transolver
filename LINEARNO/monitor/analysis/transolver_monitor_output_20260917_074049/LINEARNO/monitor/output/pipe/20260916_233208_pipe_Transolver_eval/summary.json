@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "validation_passes_observed": 1,
+  "snapshots": [
+    "snapshots/validation_000001"
+  ],
+  "monitor_error_count": 0,
+  "monitor_errors": [],
+  "target_status": "completed",
+  "started_at": "2026-09-16T23:32:08.026078+00:00",
+  "finished_at": "2026-09-16T23:33:00.416499+00:00",
+  "target_error": null
+}

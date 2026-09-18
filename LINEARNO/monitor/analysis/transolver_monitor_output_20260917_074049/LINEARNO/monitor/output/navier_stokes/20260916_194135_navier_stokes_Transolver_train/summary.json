@@ -1,0 +1,15 @@
+{
+  "status": "failed",
+  "validation_passes_observed": 0,
+  "snapshots": [],
+  "monitor_error_count": 0,
+  "monitor_errors": [],
+  "target_status": "failed",
+  "started_at": "2026-09-16T19:41:35.799022+00:00",
+  "finished_at": "2026-09-16T19:43:20.591581+00:00",
+  "target_error": {
+    "type": "KeyboardInterrupt",
+    "message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_monitor/LINEARNO/monitor/run.py\", line 179, in main\n    runpy.run_path(str(target_script), run_name=\"__main__\")\n  File \"/root/miniconda3/envs/transolver/lib/python3.10/runpy.py\", line 289, in run_path\n    return _run_module_code(code, init_globals, run_name,\n  File \"/root/miniconda3/envs/transolver/lib/python3.10/runpy.py\", line 96, in _run_module_code\n    _run_code(code, mod_globals, init_globals,\n  File \"/root/miniconda3/envs/transolver/lib/python3.10/runpy.py\", line 86, in _run_code\n    exec(code, run_globals)\n  File \"/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_monitor/PDE-Solving-StandardBenchmark/exp_ns.py\", line 359, in <module>\n    main()\n  File \"/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_monitor/PDE-Solving-StandardBenchmark/exp_ns.py\", line 279, in main\n    loss.backward()\n  File \"/root/miniconda3/envs/transolver/lib/python3.10/site-packages/torch/_tensor.py\", line 631, in backward\n    torch.autograd.backward(\n  File \"/root/miniconda3/envs/transolver/lib/python3.10/site-packages/torch/autograd/__init__.py\", line 381, in backward\n    _engine_run_backward(\n  File \"/root/miniconda3/envs/transolver/lib/python3.10/site-packages/torch/autograd/graph.py\", line 869, in _engine_run_backward\n    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass\nKeyboardInterrupt\n"
+  }
+}

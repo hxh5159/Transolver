@@ -1,0 +1,88 @@
+{
+  "config_version": 1,
+  "experiment_id": "block_4",
+  "started_at": "2026-09-16T17:36:00.191454+00:00",
+  "command": "/root/miniconda3/envs/transolver/bin/python exp_darcy.py --model Transolver_Structured_Mesh_2D --n-hidden 128 --n-heads 8 --n-layers 4 --lr 0.001 --max_grad_norm 0.1 --batch-size 4 --slice_num 64 --unified_pos 1 --ref 8 --downsample 5 --gpu 0 --data_path /inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data/fno --save_name block_4 --experiment_dir /inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/darcy/block_4 --seed 0 --eval 0",
+  "working_directory": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/PDE-Solving-StandardBenchmark",
+  "arguments": {
+    "lr": 0.001,
+    "epochs": 500,
+    "weight_decay": 1e-05,
+    "model": "Transolver_Structured_Mesh_2D",
+    "n_hidden": 128,
+    "n_layers": 4,
+    "n_heads": 8,
+    "batch_size": 4,
+    "gpu": "0",
+    "max_grad_norm": 0.1,
+    "downsample": 5,
+    "mlp_ratio": 1,
+    "dropout": 0.0,
+    "ntrain": 1000,
+    "unified_pos": 1,
+    "ref": 8,
+    "slice_num": 64,
+    "eval": 0,
+    "save_name": "block_4",
+    "data_path": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data/fno",
+    "output_root": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/PDE-Solving-StandardBenchmark/output",
+    "experiment_dir": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/darcy/block_4",
+    "model_path": null,
+    "resume": null,
+    "checkpoint_interval": 100,
+    "visualization_interval": 100,
+    "seed": 0,
+    "deterministic": false
+  },
+  "paths": {
+    "root": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/darcy/block_4",
+    "checkpoints": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/darcy/block_4/checkpoints",
+    "logs": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/darcy/block_4/logs",
+    "visualizations": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/darcy/block_4/visualizations",
+    "evaluation": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/darcy/block_4/evaluation"
+  },
+  "environment": {
+    "python": "3.10.21 (main, Aug 27 2026, 14:42:07) [GCC 14.3.0]",
+    "platform": "Linux-5.15.0-141-generic-x86_64-with-glibc2.39",
+    "torch": "2.11.0+cu128",
+    "cuda_runtime": "12.8",
+    "cuda_available": true,
+    "gpu_count": 1,
+    "gpu_names": [
+      "NVIDIA GeForce RTX 4090"
+    ],
+    "git": {
+      "root": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth",
+      "commit": "3a4aa10bd7fb34cc563e2d08a2e58cd31eea6063",
+      "dirty": false
+    }
+  },
+  "_config_path": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/transolver/Transolver_ab_depth/train_and_evaluate/depth_ablation/output/darcy/block_4/config.json",
+  "benchmark": "darcy",
+  "dataset": {
+    "train_file": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data/fno/piececonst_r421_N1024_smooth1.mat",
+    "test_file": "/inspire/hdd/project/urbanlowaltitude/yuanmeilu-253114050257/houwenzhe-drivaer/data/fno/piececonst_r421_N1024_smooth2.mat",
+    "train_samples": 1000,
+    "test_samples": 200,
+    "resolution": [
+      85,
+      85
+    ]
+  },
+  "model_runtime": {
+    "space_dim": 2,
+    "n_layers": 4,
+    "n_hidden": 128,
+    "dropout": 0.0,
+    "n_head": 8,
+    "Time_Input": false,
+    "mlp_ratio": 1,
+    "fun_dim": 1,
+    "out_dim": 1,
+    "slice_num": 64,
+    "ref": 8,
+    "unified_pos": 1,
+    "H": 85,
+    "W": 85
+  }
+}

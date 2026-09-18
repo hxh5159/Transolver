@@ -1,0 +1,11 @@
+{
+  "validation_index": 100,
+  "created_at": "2026-09-16T20:31:11.426084+00:00",
+  "sample_count": 4,
+  "layer_count": 8,
+  "primary_metric": "permutation-invariant optimal-head matched full-kernel similarity",
+  "base_kernel": "W D^{-1} W^T",
+  "full_kernel": "W A D^{-1} W^T",
+  "full_mean_off_diagonal": 0.5425155690493609,
+  "base_mean_off_diagonal": 0.6726180313022009
+}

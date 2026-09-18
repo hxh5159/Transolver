@@ -1,0 +1,495 @@
+{
+  "captured_at": "2026-09-16T23:33:00.411695+00:00",
+  "physics_attention_blocks": 8,
+  "layers": [
+    {
+      "label": "Block 1",
+      "class": "Physics_Attention_Structured_Mesh_2D",
+      "module": "model.Physics_Attention.Physics_Attention_Structured_Mesh_2D",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Conv2d",
+      "trainable_parameters": 313544,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              0.7941396236419678
+            ]
+          ],
+          [
+            [
+              0.8371565341949463
+            ]
+          ],
+          [
+            [
+              0.7065927982330322
+            ]
+          ],
+          [
+            [
+              0.927156388759613
+            ]
+          ],
+          [
+            [
+              0.5967493653297424
+            ]
+          ],
+          [
+            [
+              0.9474385976791382
+            ]
+          ],
+          [
+            [
+              0.8635905981063843
+            ]
+          ],
+          [
+            [
+              1.0876483917236328
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 2",
+      "class": "Physics_Attention_Structured_Mesh_2D",
+      "module": "model.Physics_Attention.Physics_Attention_Structured_Mesh_2D",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Conv2d",
+      "trainable_parameters": 313544,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              0.8566991686820984
+            ]
+          ],
+          [
+            [
+              0.7991532683372498
+            ]
+          ],
+          [
+            [
+              0.6815475821495056
+            ]
+          ],
+          [
+            [
+              0.569517970085144
+            ]
+          ],
+          [
+            [
+              0.9974273443222046
+            ]
+          ],
+          [
+            [
+              0.6771202683448792
+            ]
+          ],
+          [
+            [
+              0.6421389579772949
+            ]
+          ],
+          [
+            [
+              0.861598014831543
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 3",
+      "class": "Physics_Attention_Structured_Mesh_2D",
+      "module": "model.Physics_Attention.Physics_Attention_Structured_Mesh_2D",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Conv2d",
+      "trainable_parameters": 313544,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              0.9851919412612915
+            ]
+          ],
+          [
+            [
+              2.0755691528320312
+            ]
+          ],
+          [
+            [
+              1.044372320175171
+            ]
+          ],
+          [
+            [
+              0.8735159635543823
+            ]
+          ],
+          [
+            [
+              1.1285319328308105
+            ]
+          ],
+          [
+            [
+              1.075831651687622
+            ]
+          ],
+          [
+            [
+              0.9430732131004333
+            ]
+          ],
+          [
+            [
+              1.1459846496582031
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 4",
+      "class": "Physics_Attention_Structured_Mesh_2D",
+      "module": "model.Physics_Attention.Physics_Attention_Structured_Mesh_2D",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Conv2d",
+      "trainable_parameters": 313544,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              0.7961559295654297
+            ]
+          ],
+          [
+            [
+              0.9122092127799988
+            ]
+          ],
+          [
+            [
+              0.8935658931732178
+            ]
+          ],
+          [
+            [
+              1.631208062171936
+            ]
+          ],
+          [
+            [
+              1.2512136697769165
+            ]
+          ],
+          [
+            [
+              0.46460336446762085
+            ]
+          ],
+          [
+            [
+              1.5799769163131714
+            ]
+          ],
+          [
+            [
+              0.915176272392273
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 5",
+      "class": "Physics_Attention_Structured_Mesh_2D",
+      "module": "model.Physics_Attention.Physics_Attention_Structured_Mesh_2D",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Conv2d",
+      "trainable_parameters": 313544,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              0.6981322169303894
+            ]
+          ],
+          [
+            [
+              0.46217986941337585
+            ]
+          ],
+          [
+            [
+              0.860217273235321
+            ]
+          ],
+          [
+            [
+              1.0276257991790771
+            ]
+          ],
+          [
+            [
+              0.9727334976196289
+            ]
+          ],
+          [
+            [
+              1.2156901359558105
+            ]
+          ],
+          [
+            [
+              1.1431198120117188
+            ]
+          ],
+          [
+            [
+              0.704510509967804
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 6",
+      "class": "Physics_Attention_Structured_Mesh_2D",
+      "module": "model.Physics_Attention.Physics_Attention_Structured_Mesh_2D",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Conv2d",
+      "trainable_parameters": 313544,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              1.094483733177185
+            ]
+          ],
+          [
+            [
+              0.7741910815238953
+            ]
+          ],
+          [
+            [
+              0.7863583564758301
+            ]
+          ],
+          [
+            [
+              0.8763791918754578
+            ]
+          ],
+          [
+            [
+              0.8567444086074829
+            ]
+          ],
+          [
+            [
+              0.6975643634796143
+            ]
+          ],
+          [
+            [
+              1.137429118156433
+            ]
+          ],
+          [
+            [
+              0.9370368719100952
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 7",
+      "class": "Physics_Attention_Structured_Mesh_2D",
+      "module": "model.Physics_Attention.Physics_Attention_Structured_Mesh_2D",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Conv2d",
+      "trainable_parameters": 313544,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              0.7460365891456604
+            ]
+          ],
+          [
+            [
+              0.8876236081123352
+            ]
+          ],
+          [
+            [
+              0.8473496437072754
+            ]
+          ],
+          [
+            [
+              0.8466224670410156
+            ]
+          ],
+          [
+            [
+              0.8410760164260864
+            ]
+          ],
+          [
+            [
+              0.6791472434997559
+            ]
+          ],
+          [
+            [
+              1.2968621253967285
+            ]
+          ],
+          [
+            [
+              0.7488950490951538
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "label": "Block 8",
+      "class": "Physics_Attention_Structured_Mesh_2D",
+      "module": "model.Physics_Attention.Physics_Attention_Structured_Mesh_2D",
+      "heads": 8,
+      "dim_head": 16,
+      "hidden_dim": 128,
+      "slices": 64,
+      "input_projection": "Conv2d",
+      "trainable_parameters": 313544,
+      "temperature_shape": [
+        1,
+        8,
+        1,
+        1
+      ],
+      "temperature_at_discovery": [
+        [
+          [
+            [
+              1.044901967048645
+            ]
+          ],
+          [
+            [
+              0.9535926580429077
+            ]
+          ],
+          [
+            [
+              1.206594705581665
+            ]
+          ],
+          [
+            [
+              0.6632419228553772
+            ]
+          ],
+          [
+            [
+              0.6064848303794861
+            ]
+          ],
+          [
+            [
+              0.6133526563644409
+            ]
+          ],
+          [
+            [
+              0.98971027135849
+            ]
+          ],
+          [
+            [
+              0.6669835448265076
+            ]
+          ]
+        ]
+      ]
+    }
+  ],
+  "scope": "spatial propagation kernels before value/output channel projections; this is not the full channel-valued block operator"
+}
